@@ -42,9 +42,6 @@ class Program < Ast
   end
 end
 
-class Stmt < Ast
-end
-
 class Block < Ast
 	attr_accessor :varDecl, :procedureDecl, :ste
 	def initialize varDecl=nil, procedureDecl=nil, ste=nil
@@ -52,7 +49,118 @@ class Block < Ast
 	end
 end
 
-#=============== declarations rule====================
+#=============== Variabme Declarations part====================
+=begin
+ <variable declaration part> 
+=end
+class VariableDeclarationPart < Ast
+	attr_accessor :list
+	def initialize list =[]
+		@list=list
+	end
+end
+
+class VariableDeclaration < Ast
+	attr_accessor :list, :type
+	def initialize list=[], type=nil
+		@list, @type=list, type
+	end
+end
+
+class Type < Ast
+	attr_accessor :smpType, :arrayType
+	def initialize smpType=nil, arrayType=nil
+		@smpType, @arrayType=smpType, arrayType
+	end
+end
+
+class ArrayType < Ast
+	attr_accessor :indexRange, :smpType
+	def initialize indexRange=nil, smpType=nil
+		@indexRange, @smpType=indexRange, smpType
+	end
+end
+
+class IndexRange < Ast
+	attr_accessor :intCosnt1, :intConst2
+	def initialize intConst1=nil, intConst2=nil
+		@intConst1,@intConst2=intConst1,intConst2
+	end
+end
+
+class SimpleType < Ast
+	attr_accessor :typeIdent
+	def initialize typeIdent
+		@typeIdent=typeIdent
+	end
+end
+
+class TypeIdentifier < Ast
+	attr_accessor :name
+	def initialize name=nil
+		@name=name
+	end
+end
+
+#=============Procedure Declaration part ====================
+class ProcedureDeclarationPart < Ast
+	attr_accessor :list
+	def initialize list=[]
+		@list=list
+	end
+end
+
+class ProcedureDeclaration < Ast
+	attr_accessor :ident, :block
+	def initialize ident=nil, block=nil
+		@ident,@block=ident,block
+	end
+end
+
+#=============statement part ===============================
+
+class StatementPart < Ast
+	attr_accessor :list
+	def initialize list=[]
+		@list=list
+	end
+end
+
+class Statement < Ast
+	attr_accessor :spSte, :stSte
+	def initialize spSte=nil, stSte=nil
+		@spSte,@stSte=spSte,stSte
+	end
+end
+
+class SimpleStatement < Ast
+	attr_accessor :assign, :proced, :readste, :writeste
+	def initialize assign=nil, proced=nil, readste=nil, writeste=nil
+		@assign, @proced, @readste, @writeste=assign,proced,readste,writeste
+	end
+end
+
+class ReadStatement < Ast
+	attr_accessor :varlist
+	def initialize varlist=[]
+		@varlist=varlist
+	end
+end
+
+class InputVariable < Ast
+	attr_accessor :var
+	def initialize var=nil
+		@var=var
+	end
+end
+
+class WriteStatelent < Ast
+	attr_accessor :outputlist
+	def initialize outputlist=[]
+		@outputlist=outputlist
+	end
+end
+
 class Declarations < Ast
   attr_accessor :consts,:types,:vars,:procs
   def initialize consts=[],types=[],vars=[],procs=[]

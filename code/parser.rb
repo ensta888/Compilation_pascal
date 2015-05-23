@@ -23,7 +23,7 @@ PASCAL_TOKEN_DEF={
   :comma	=> /\,/,
   :semicolon	=> /\;/,
   :colon	=> /:/,
-  :dot		=> /../, 
+  :twodot		=> /../, 
  
   :div		=> /div|DIV/,
   :or		  => /or|OR/,
@@ -109,406 +109,227 @@ class Parser
 							<statement part> 
 =end
 	def parseBlock
-		parseVariableDeclaration()
-		parseProcedureDeclaration()
-		parseStatement()
+		say "parseBlock"
+		blk=Block.new
+		blk.varDecl=parseVariableDeclarationPart()
+		blk.procedureDecl=parseProcedureDeclaration()
+		blk.ste=parseStatement()
+		return blk
 	end
 
+
+#-------------------------VariableDeclarationPart-------------------
 =begin
 <variable declaration part> ::= 	<empty> |
 																	var <variable declaration> ;
    																  { <variable declaration> ; } 
 =end
-	def parseVariableDeclaration
+	def parseVariableDeclarationPart
+		say "parseVariableDeclarationPart"
+		expect :var
+		varDecls=VariableDeclarationPart.new
+		varDecls.list << parseVariableDeclaration()
+		while showNext.kind==:semicolon
+			acceptIt
+			varDecls.list << parseVariableDeclaration()
+		end
+		return varDecls
 	end
     
-  def parseStatementSequence
-    node = StatementSequence.new
-    say "parseStatementSequence"
-    node.list << parseStatement()
-    while showNext.kind==:semicolon
-      acceptIt
-      node.list << parseStatement()
-    end
-    return node
-  end
+=begin
+<variable declaration> ::= 	<identifier > { , <identifier> } : <type> 
+=end
+	def parseVariableDeclaration
+		say "parseVariableDeclaration"
+		vars=VariableDeclaration.new
+		vars.list << expect :ident
+		while showNext.kind==:semicolon
+			acceptIt
+			vars.list << expect :ident
+		end
+		expect :colon
+		vars.type=parseType()
+		return vars
+	end
 
-  def parseExpression
-    say "parseExpression"
-    node=Expression.new
-    node.lhs=parseSimpleExpression()
-    operators=[:eq,:hashtag,:inf,:infeq,:sup,:supeq]
-    if operators.include? showNext.kind
-      node.operator=Operator.new(acceptIt)
-      node.rhs=parseSimpleExpression()
-    end
-    return node
-  end
+=begin
+<type> ::= 	<simple type> | <array type> 
+=end
+	def parseType
+		say "parseType"
+		type=Type.new
+		if showNext.kind==:array
+			type.arrayType=parseArrayType()
+		else
+			type.smpType=parseSimpleType()
+		end
+		return type
+	end
 
-  def parseFactor
-    say "parseFactor"
-     
-    case showNext.kind 
-    when :ident then
-      factor=IdentSelector.new
-      factor.ident=Identifier.new(acceptIt)
-      factor.selector=parseSelector()
-    when :integer then
-      factor=Number.new(acceptIt)
-    when :lbracket then
-      factor=ExprFactor.new
-      acceptIt
-      factor.expr=parseExpression()
-      expect :rbracket
-    when :tilde then
-      factor=TildeFactor.new
-      acceptIt
-      factor.expr=parseFactor()
-    else
-      raise "expecting : identifier number '(' or '~' at #{lexer.pos}"
-    end
+=begin
+<array type> ::= array [ <index range> ] of <simple type>
+=end
+	def parseArrayType
+		say "parseArrayType"
+		arType=ArrayType.new
+		expect :array
+		expect :lsbracket
+		arType.indexRange=parseIndexRange()
+		expect :rsbracket
+		expect :of
+		arType.smpType=parseSimpleType()
+		return arType
+	end
 
-    return factor
-  end
+=begin
+<index range> ::= <integer constant> .. <integer constatnt>
+=end
+	def parseIndexRange
+		say "parseIndexRange"
+		indRng=IndexRang.new
+		indRng.intConst1= expect :integer
+		expect :twodot
+		indRng.intConst2= expect :integer
+		return indeRng
+	end
 
-  def parseSelector
-    say "parseSelector"
-    selector=Selector.new
-    while showNext.kind==:dot or showNext.kind==:lsbracket
-      case showNext.kind
-      when :dot
-        acceptIt
-        id=expect :ident
-        selector << IdentSelector.new(id)
-      when :lsbracket
-        acceptIt
-        expr=parseExpression()
-        expect :rsbracket
-        selector << TabSelector.new(expr)
-      else
-        raise "wrong selector : expecting '.' or '['. Got '#{showNext.value}'"
-        continuer = false
-      end
-    end
-    return selector
-  end
-  
-  def parseIfStatement()
-    say "parseIfStatement"
-    expect :if
-    if_obj = If.new
-    if_obj.cond = parseExpression()
-    expect :then
-    if_obj.ifBlock = parseStatementSequence()
-    if_father_obj = if_obj
-    while showNext.kind==:elsif
-      acceptIt()
-      if_son_obj = If.new
-      if_son_obj.cond = parseExpression()
-      expect :then
-      if_son_obj.ifBlock = parseStatementSequence()
-      if_father_obj.elseBlock = if_son_obj
-      if_father_obj = if_son_obj
-    end
-    if showNext.kind==:else
-	acceptIt()
-	if_father_obj.elseBlock = parseStatementSequence()
-    end
-    expect :end
-    return if_obj
-  end
+=begin
+<simple type> ::= 	<type identifier> 
+=end
+	def parseSimpleType
+		say "parseSimpleType"
+		smpType=SimpleType.new
+		smpType.typeIdent=parseTypeIdentifier()
+		return smptype
+	end
 
-  def parseWhileStatement
-    say "parseWhileStatement"
-    expect :while
-    while_obj = While.new
-    while_obj.cond = parseExpression()
-    expect :do
-    while_obj.block = parseStatementSequence()
-    expect :end
-    return while_obj
-  end
+=begin
+<type identifier> ::= <identifier>
+=end
+	def parseTypeIdentifier
+		say "parseTypeIdentifier"
+		typeIdent=TypeIdentifier.new
+		typeIdent.name=expect :ident
+		return typeIdent
+	end
+#------------------procedure declaration part----------------
+=begin
+<procedure declaration part> ::= 	{ <procedure declaration> ; }
+=end
+	def parseProcedureDeclarationPart
+		say "parseprocedurePart"
+		pcd=ProcedureDeclarationPart.new
+		pcd.list << parseProcedureDeclaration()
+		while showNext.kind==:semicolon
+			acceptIt
+			pcd.list << parseProcedureDeclaration()
+		end
+		return pcd
+	end
 
-#---------------------------------------------------------
-  def parseTerm
-    term = Term.new
-    say "parseTerm"
-    term.lhs = parseFactor()
-    starters_factor=[:multiply,:div,:mod,:and]
-    while starters_factor.include? showNext.kind
-      term.op = Operator.new(acceptIt)
-      term.rhs = parseFactor()
-    end 
-    return term
-  end
+=begin
+<procedure declaration> ::= 	procedure <identifier> ; <block> 
+=end
+	def parseProcedureDeclaration
+		say "parseProcedureDeclaration"
+		pcd=ProcedureDeclaration.new
+		expect :procedure
+		pcd.ident= expect :ident
+		expect :semicolon
+		pcd.block= parseBlock()
+		return pcd
+	end
 
-  def parseSimpleExpression
-    say "parseSimpleExpression"
-    expr=SimpleExpression.new
-    sterm=SignedTerm.new
-    if showNext.kind==:plus 
-      sterm.op=Operator.new(acceptIt)
-    elsif showNext.kind==:substract
-      sterm.op=Operator.new(acceptIt)
-    end
-    sterm.term=parseTerm()
-    expr.terms.push(sterm)
-    while showNext.kind==:plus or showNext.kind==:substract or showNext.kind==:or
-      sterm=SignedTerm.new
-      sterm.op=Operator.new(acceptIt)
-      sterm.term=parseTerm()
-      expr.terms.push(sterm)
-    end
-    return expr
-  end
-	
-  def parseFPSection
-    node=FPSection.new
-    say "parseFPSection"
-    if (showNext.kind == :var)
-      acceptIt
-      node.isVar=true
-    end
-    node.identList=parseIdentList()
-    expect :semicolon
-    node.type=parseType()
-    return node
-  end
-	
-  def parseFormalParameters
-    node=FormalParameters.new
-    say "parseFormalParameters"
-    expect :lbracket
-    if (showNext.kind != :rbracket)
-      node.fpsections.push(parseFPSection())
-      while showNext.kind==:semicolon
-        acceptIt
-        node.fpsections.push(parseFPSection())
-      end
-    end
-    expect :rbracket
-    return node
-  end
+#-----------------statement part---------------------
+=begin
+<statement part> ::= 	<compound statement> 
+=end
+	def parseStatementPart
+		ste=StatementPart.new
+		ste=parseCompoundStatement()
+		return ste
+	end
 
-  def parseProcedureHeading
-    node=ProcedureHeading.new
-    say "parseProcedureHeading"
-    expect :procedure
-    node.name = Identifier.new(expect :ident)
-    if showNext.kind==:lbracket
-      node.formalParameters=parseFormalParameters()
-    end
-    return node
-  end
+=begin
+<compound statement> ::= 	begin <statement>{ ; <statement> } end
+=end
+	def parseCompoundStatement
+		say "parseCompoundStatement"
+		expect :begin
+		ste=StatementPart.new
+		ste.list << parseStatement()
+		while showNext.kind==:semicolon
+			accepIt
+			ste.list << parseStatement()
+		end
+		return ste
+	end
 
-  def parseStatement
-    say "parseStatement"
-    stmt = Stmt.new
-    case showNext.kind
-    when :ident then
-      identifier=acceptIt()
-      selector=parseSelector()
-      if showNext().kind==:assign
-        stmt=parseAssignment(identifier,selector)
-      else
-        stmt=parseProcedureCall(identifier,selector)
-      end
-    when :if then
-      stmt=parseIfStatement()
-    when :while then
-      stmt=parseWhileStatement()
-    else raise "expecting one of : identifier,if,while"
-    end
-    return stmt
-  end
+=begin
+<statement> ::= <simple statement> | <structured statement>
+=end
+	def parseStatement
+		say "parseStatement"
+		ste=Statement.new
+		if showNext.kind==:begin
+			ste.stSte=parseStructuredStatement()
+		else
+			ste.spSte=parseSimpleStatement()
+		end
+		return ste
+	end
 
-  def parseProcedureBody 
-    say "parseProcedureBody"
-    pb = ProcedureBody.new    
-    pb.decls = parseDeclarations()
-    if showNext.kind==:begin
-      acceptIt
-      pb.stmts = parseStatementSequence()
-    end
-    expect :end
-    say id=expect(:ident)
-    pb.ident = Identifier.new(id)
-    return pb
-  end       
+=begin
+<simple statement> ::= 	<assignment statement> | <procedure statement> | <read statement> | <write statement> 
+=end
+	def parseSimpleStatement
+		say "parseSimpleStatement"
+		spste=SimpleStatement.new
+		case showNext.kind
+		when :read then 
+			spste.readste=parseReadStatement()
+		when :write then
+			spste.writeste=parseWriteStatement()
+		#assignment and procedurement
+		else
+			raise "expecting : identifier number '(' or '~' at #{lexer.pos}"
+		end
+	end
 
- def parseProcedureDeclaration
-   say "parseProcedureDeclaration"
-   node= ProcedureDecl.new
-   node.heading = parseProcedureHeading()
-   expect :semicolon
-   node.body = parseProcedureBody()
-   return node
- end
+=begin
+<read statement> ::= 	read ( <input variable> { , <input variable> } )
+=end
+	def parseReadStatement
+		say "parseReadStatement"
+		expect :read
+		readste=ReadStatement.new
+		expect :lbracket
+		readste.varlist << parseInputVariable()
+		while showNext.kind==:comma
+			acceptIt
+			readste.varlist << parseInputVariable()
+		end
+		expect :rbracket
+		return readste
+	end
 
- def parseDeclarations 
-   say "parseDeclarations"
-   declarations = Declarations.new
-   
-   if showNext.kind==:const
-     acceptIt
-     cst = ConstDeclarations.new  # :constDecls[]
-     while showNext.kind==:ident
-       cd = ConstDecl.new # : ident :expr
-       cd.ident = Identifier.new(expect(:ident))
-       expect :eq
-       cd.expr = parseExpression()
-       expect :semicolon
-       cst.list << cd
-     end
-     declarations.consts << cst
-   end
-   
-   if showNext.kind==:type
-     acceptIt
-     say "type detected"
-     tpe = TypeDeclaration.new # :typeDecls[]
-     while showNext.kind==:ident
-       asgnmt = TypeDecl.new # : ident :type
-       asgnmt.ident = Identifier.new(expect(:ident))
-        expect :eq
-       asgnmt.type = parseType()
-       expect :semicolon
-       tpe.typeDecls << asgnmt
-     end
-     declarations.types << tpe
-   end
-    
-   if showNext.kind==:var
-     acceptIt
-     say "var detected"
-     vars = VarDeclarations.new # :varDecls[]
-     while showNext.kind==:ident
-       vd = VarDecl.new # :identList :type
-       vd.identList = parseIdentList()
-       expect :colon
-       vd.type = parseType()
-       expect :semicolon
-       vars.list << vd
-     end
-     declarations.vars << vars
-   end
-   
-   if showNext.kind==:procedure
-     procs = ProcedureDeclarations.new # :procDecls[]
-     while showNext.kind==:procedure
-       procs.list << parseProcedureDeclaration()
-       expect :semicolon
-     end
-     declarations.procs << procs
-   end
-   return declarations
- end 
-  
- def parseIdentList
-   say "parseIdentList"
-   node=IdentList.new
-   node.idents << Identifier.new(expect(:ident))
-   while showNext.kind==:comma
-     acceptIt
-     node.idents << Identifier.new(expect(:ident))
-   end
-   return node
- end
+=begin
+<input variable> ::= <variable>
+=end
+	def parseInputVariable
+		say "parseInputVariable"
+		invar=InputVariable.new
+		invar.var=parseVariable()
+		return invar
+	end
 
- def parseType
-   node = Type.new
-   say "parseType"
-   case showNext.kind
-   when :ident
-     node = NamedType.new(Identifier.new(acceptIt))
-   when :array
-     node  = parseArrayType()
-   when :record
-     node = parseRecordType()
-   else
-     raise "parsing error for type around #{showNext.pos}"
-   end
-   return node
- end
-
- def parseArrayType
-   node = ArrayType.new
-   say "parseArrayType"
-   expect :array
-   node.size = parseExpression()
-   expect :of
-   node.type = parseType()
-   return node
- end
- 
- def parseRecordType
-   rc = RecordType.new
-   say "parseRecordType"
-   expect :record
-   rc.fieldLists << parseFieldList()
-   while showNext.kind==:semicolon
-     acceptIt
-     rc.fieldLists << parseFieldList()
-   end
-   expect :end
-   return rc
- end
- 
- def parseFieldList
-   node = FieldList.new
-   say "parseFieldList"
-   if showNext.kind==:ident
-     node.identList = parseIdentList()
-     expect :colon
-     node.type = parseType()
-   end
-   return node
- end
-
- def parseActualParameters
-   node=ActualParameters.new
-   say "parseActualParameters"
-   expect :lbracket
-   starters_exp=[:plus,:minus,:ident,:integer,:lbracket,:tilde]
-   if starters_exp.include? showNext.kind
-     node.expressions.push(parseExpression())
-     while showNext.kind==:comma
-       node.expressions.push(parseExpression())
-     end
-   end
-   expect :rbracket
-   return node
- end
-  
-
- def parseProcedureCall(identifier,selector)
-   node=ProcedureCall.new
-   node.name = Identifier.new(identifier)
-   say "parseProcedureCall"
-   #.....already parsed.......
-   #expect :ident
-   #parseSelector()
-   #.........................
-   if showNext.kind==:lbracket
-     node.actualParams=parseActualParameters()
-   end
-   return node # ligne ajoutée
- end
-
- def parseAssignment(id_tok,selector)
-   assignt=Assignment.new # ligne ajoutée
-   assignt.ident = Identifier.new(id_tok) # ligne ajoutée
-   assignt.selector = selector
-   say "parseAssignement"
-   # .....already analyzed......
-   #expect :ident
-   # @lexer.print_stream(5)
-   #parseSelector()
-   #...........................
-   expect :assign
-   assignt.expression=parseExpression() # ligne modifiée
-   return assignt # ligne ajoutée
- end
-
-
-end
+=begin
+	<write statement>::= write (<output value>{,<output value>})
+=end
+	def parseWriteStatement
+		say "parseWriteStatement"
+		writeste=WriteStatement.new
+		expect :write
+		expect :lbracket
+		writeste.outputlist << parseOutputValue()
+	end
