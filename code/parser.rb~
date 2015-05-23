@@ -4,50 +4,51 @@ require_relative 'lexer'
 require_relative 'ast'
 
 # A COMPLETER !
-OBERON_TOKEN_DEF={
-  :module       => /module|MODULE/,
-  :end		=> /end|END/,
-  :procedure	=> /procedure|PROCEDURE/,
-  :begin	=> /begin|BEGIN/,
-  :array	=> /array|ARRAY/,
-  :of	        => /of|OF/,
-  :if		=> /if|IF/,
-  :elsif	=> /elsif|ELSIF/,
-  :else		=> /else|ELSE/,
-  :then		=> /then|THEN/,
-  :do	        => /do|DO/,
-  :var   	=> /var|VAR/,
-  :while	=> /WHILE|while/,
-  :type		=> /integer|INTEGER/,
-  :type		=> /type|TYPE/,
-  :const	=> /const|CONST/,
-  :record       => /record|RECORD/,
-  :semicolon	=> /\;/,
-  :dot		=> /\./,
-  
-  :comma	=> /\,/,
+PASCAL_TOKEN_DEF={
+  :plus		=> /\+/,
+	:substract	=> /\-/,
+  :multiply	=> /\*/,
+	:eq => /\=/,
+  :lr => /<>/,
+  :inf		=> /</,
+  :sup		=> />/,
   :infeq	=> /<=/,
   :supeq	=> />=/,
-  :sup		=> />/,
-  :inf		=> /</,
-  
   :lbracket	=> /\(/,
   :rbracket	=> /\)/,
   :lsbracket	=> /\[/,
   :rsbracket	=> /\]/,
   :assign	=> /:=/,
+  :dot		=> /\./, 
+  :comma	=> /\,/,
+  :semicolon	=> /\;/,
   :colon	=> /:/,
-  :eq		=> /\=/,
-  :multiply	=> /\*/,
-  :substract	=> /\-/,
-  :tilde	    => /\~/,
-  :hashtag	  => /\#/,
-   
-  :plus		=> /\+/,
+  :2dot		=> /../, 
+ 
   :div		=> /div|DIV/,
   :or		  => /or|OR/,
-  :mod		=> /mod|MOD/,
-  :and		=> /\&/,
+  :and    => /and|AND/,
+  :not    => /not|NOT/,
+
+  :if     => /if|IF/,
+  :then   => /then|THEN/,
+  :else   => /else|ELSE/,
+  :of     => /of|OF/,
+  :while  => /while|WHILE/,
+	:do     => /do|DO/,
+	:begin  => /begin|BEGIN/,
+	:end    => /end|END/,
+	:read   => /read|READ/,
+	:write  => /write|WRITE/,
+	:var    => /var|VAR/,
+  :array  => /array|ARRAY/,
+	:procedure => /procedure|PROCCEDURE/,
+	:program   => /program|PROGRAM/,
+
+  :integer   => /integer|INTERGER/,
+	:Boolean   => /Boolean|BOOLEAN/,
+  :true      => /true|TRUE/,
+  :false     => /false|FALSE/
 
   :ident	  => /[a-zA-Z][a-zA-Z0-9_]*/,
   :integer	=> /[0-9]+/,
@@ -65,7 +66,7 @@ class Parser
   def parse filename
     str=IO.read(filename)
     @lexer.tokenize(str)
-    parseModule()
+    parseProgram()
   end
 
   def expect token_kind
@@ -89,22 +90,37 @@ class Parser
     puts txt if @verbose
   end
   #=========== parse method relative to the grammar ========
- def parseModule
-   say "parseModule"
-   expect :module
-   modul= Modul.new
-   modul.ident1 = Identifier.new(expect(:ident))
+=begin
+	<program> ::= 	program <identifier> ; <block> 
+=end
+ def parseProgram
+   say "parseProgram"
+   expect :program
+   prg= Program.new
+   prg.ident = Identifier.new(expect(:ident))
    expect :semicolon
-   modul.declarations= parseDeclarations()
-   if showNext.kind==:begin
-     acceptIt
-     modul.statements=parseStatementSequence()
-   end
-   expect :end 
-   modul.ident2 = Identifier.new(expect(:ident))
-   expect :dot
-   return modul
-  end
+   prg.block=parseBlock()
+   return prg
+ end
+
+=begin
+<block> ::= 	<variable declaration part>
+							<procedure declaration part>
+							<statement part> 
+=end
+	def parseBlock
+		parseVariableDeclaration()
+		parseProcedureDeclaration()
+		parseStatement()
+	end
+
+=begin
+<variable declaration part> ::= 	<empty> |
+																	var <variable declaration> ;
+   																  { <variable declaration> ; } 
+=end
+	def parseVariableDeclaration
+	end
     
   def parseStatementSequence
     node = StatementSequence.new

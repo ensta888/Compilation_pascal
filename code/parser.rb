@@ -4,50 +4,51 @@ require_relative 'lexer'
 require_relative 'ast'
 
 # A COMPLETER !
-OBERON_TOKEN_DEF={
-  :module       => /module|MODULE/,
-  :end		=> /end|END/,
-  :procedure	=> /procedure|PROCEDURE/,
-  :begin	=> /begin|BEGIN/,
-  :array	=> /array|ARRAY/,
-  :of	        => /of|OF/,
-  :if		=> /if|IF/,
-  :elsif	=> /elsif|ELSIF/,
-  :else		=> /else|ELSE/,
-  :then		=> /then|THEN/,
-  :do	        => /do|DO/,
-  :var   	=> /var|VAR/,
-  :while	=> /WHILE|while/,
-  :type		=> /integer|INTEGER/,
-  :type		=> /type|TYPE/,
-  :const	=> /const|CONST/,
-  :record       => /record|RECORD/,
-  :semicolon	=> /\;/,
-  :dot		=> /\./,
-  
-  :comma	=> /\,/,
+PASCAL_TOKEN_DEF={
+  :plus		=> /\+/,
+	:substract	=> /\-/,
+  :multiply	=> /\*/,
+	:eq => /\=/,
+  :lr => /<>/,
+  :inf		=> /</,
+  :sup		=> />/,
   :infeq	=> /<=/,
   :supeq	=> />=/,
-  :sup		=> />/,
-  :inf		=> /</,
-  
   :lbracket	=> /\(/,
   :rbracket	=> /\)/,
   :lsbracket	=> /\[/,
   :rsbracket	=> /\]/,
   :assign	=> /:=/,
+  :dot		=> /\./, 
+  :comma	=> /\,/,
+  :semicolon	=> /\;/,
   :colon	=> /:/,
-  :eq		=> /\=/,
-  :multiply	=> /\*/,
-  :substract	=> /\-/,
-  :tilde	    => /\~/,
-  :hashtag	  => /\#/,
-   
-  :plus		=> /\+/,
+  :dot		=> /../, 
+ 
   :div		=> /div|DIV/,
   :or		  => /or|OR/,
-  :mod		=> /mod|MOD/,
-  :and		=> /\&/,
+  :and    => /and|AND/,
+  :not    => /not|NOT/,
+
+  :if     => /if|IF/,
+  :then   => /then|THEN/,
+  :else   => /else|ELSE/,
+  :of     => /of|OF/,
+  :while  => /while|WHILE/,
+	:do     => /do|DO/,
+	:begin  => /begin|BEGIN/,
+	:end    => /end|END/,
+	:read   => /read|READ/,
+	:write  => /write|WRITE/,
+	:var    => /var|VAR/,
+  :array  => /array|ARRAY/,
+	:procedure => /procedure|PROCCEDURE/,
+	:program   => /program|PROGRAM/,
+
+  :integer   => /integer|INTERGER/,
+	:Boolean   => /Boolean|BOOLEAN/,
+  :true      => /true|TRUE/,
+  :false     => /false|FALSE/
 
   :ident	  => /[a-zA-Z][a-zA-Z0-9_]*/,
   :integer	=> /[0-9]+/,
@@ -58,7 +59,7 @@ class Parser
   attr_accessor :lexer
 
   def initialize verbose=false
-    @lexer=Lexer.new(OBERON_TOKEN_DEF)
+    @lexer=Lexer.new(PASCAL_TOKEN_DEF)
     @verbose=verbose
   end
 
