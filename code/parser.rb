@@ -9,7 +9,7 @@ PASCAL_TOKEN_DEF={
 	:substract	=> /\-/,
   :multiply	=> /\*/,
 	:eq => /\=/,
-  :lr => /<>/,
+  :noteq  => /<>/,
   :inf		=> /</,
   :sup		=> />/,
   :infeq	=> /<=/,
@@ -45,7 +45,6 @@ PASCAL_TOKEN_DEF={
 	:procedure => /procedure|PROCCEDURE/,
 	:program   => /program|PROGRAM/,
 
-  :integer   => /integer|INTERGER/,
 	:Boolean   => /Boolean|BOOLEAN/,
   :true      => /true|TRUE/,
   :false     => /false|FALSE/
@@ -246,7 +245,7 @@ class Parser
 =end
 	def parseStatementPart
 		ste=StatementPart.new
-		ste=parseCompoundStatement()
+		ste.cpste=parseCompoundStatement()
 		return ste
 	end
 
@@ -256,7 +255,7 @@ class Parser
 	def parseCompoundStatement
 		say "parseCompoundStatement"
 		expect :begin
-		ste=StatementPart.new
+		ste=CompoundStatement.new
 		ste.list << parseStatement()
 		while showNext.kind==:semicolon
 			accepIt
@@ -295,7 +294,7 @@ class Parser
 			raise "expecting : identifier number '(' or '~' at #{lexer.pos}"
 		end
 	end
-
+#--------------------lack of assignement and procedure statement
 =begin
 <read statement> ::= 	read ( <input variable> { , <input variable> } )
 =end
@@ -332,4 +331,157 @@ class Parser
 		expect :write
 		expect :lbracket
 		writeste.outputlist << parseOutputValue()
+		while showNext.kind==:comma
+			acceptIt
+			writeste.outputlist << parseOutputValue()
+		end
+		return writeste
+	end
+
+=begin
+<output value> ::= <expression>
+=end
+	def parseOutputValue
+		say "parseOutputValue"
+		out=OutputValue.new
+		out.exp=parseExpression()
+		return out
+	end
+
+#----------------structures statement------------
+=begin
+<structured statement> ::= 	<compound statement> | <if statement> | <while statement> 
+=end
+	def parseStructuredStatement
+		say "parseStructuredStatement"
+		strSte=StructuredStatement.new
+		case showNext.kind
+		when :begin then
+			strSte.cmpste=parseCompoundStatement()
+		when :if then
+			strSte.ifste=parseIfStatement()
+		when :while then
+			strSte.whileste=parseWhileStatement()
+		else
+			raise "expecting : identifier number '(' or '~' at #{lexer.pos}"
+		end
+		return strSte
+	end
+
+=begin
+<if statement> ::= 	if <expression> then <statement> | if <expression> then <statement> else <statement> 
+=end
+	def parseIfStatement
+		say "parseIfStatement"
+    ifste=IfStatement.new
+		ifste.cond=parseExpression()
+		expect :then
+		ifste.thenste=parseStatement()
+		if showNext.kind==:else
+			acceptIt
+			ifste.elseste=parseStatement
+		end
+		return ifste
+	end
+
+=begin
+<while statement> ::= 	while <expression> do <statement>
+=end
+	def parseWhileStatement
+		say "parseWhileStatement"
+		whileste=WhileStatement.new
+		expect :while
+		whileste.cond=parseExpression()
+		expect :do
+		whileste.ste=parseStatement()
+		return whileste
+	end
+#----------- expression---------------------------------
+=begin
+<expression> ::= 	<simple expression> | <simple expression> <relational operator> <simple expression>
+=end
+	def parseExpression
+		say "parseExpression"
+		exp=Expression.new
+		exp.lsmpexp=parseSimpleExpression()
+		reOp=[:eq, :noteq, :inf, :infeq, :supeq, :sup]
+		if reOp.include? showNext.kind
+			exp.reop=acceptIt
+			exp.rsmpexp=parseSimpleExpression()
+		end
+		return exp
+	end
+
+=begin
+<simple expression> ::= 	<sign> <term> { <adding operator> <term> } 
+=end
+	def parseSimpleExpression
+		say "parseSimpleExpression"
+		smpexp=SimpleExpression.new
+		sgn=[:plus,:substract]
+		if sgn.include? showNext.kind
+			smpexp.sign=acceptIt
+		end
+		smpexp.termlist << parseTerm()
+		addingop=[:plus, :substract, :or]
+		while addingop.include? showNext.kind
+			smpexp.addingoplist << acceptIt
+			smpexp.termlist << parseTerm()
+		end
+		return smpexp
+	end
+
+=begin
+<tem> ::= <factor> { <multiplying operator >  <factor>}
+=end
+	def parseTerm
+		say "parseTerm"
+		tm=Term.new
+		tm.factlist << parseFactor()
+		multiplyingop=[:multiply, :div, :and]
+		while multiplyingop.include? showNext.kind
+			tm.multiplyingoplist << acceptIt
+			tm.factlist << parseFactor()
+		end
+		return tm
+	end
+
+=begin
+	<factor> ::= <variable> | <constant> | (<expression>) | not <factor>
+=end
+	def parseFactor
+		say "parseFactor"
+		fact=Factor.new
+		case showNext.kind
+		when :not then
+			acceptIt
+			fact.notfact=parseFactor()
+		when :lbracket then
+			acceptIt
+			fact.exp=parseExpression()
+			expect :rbracket
+		when :integer then
+			fact.const=acceptIt
+		when :ident then
+		# here we need to judge if it was a constant identifier or a variable identifier 
+			fact.var=parseVariable()
+		else
+			raise "expecting : identifier number '(' or '~' at #{lexer.pos}"
+		end
+		return fact
+	end
+
+=begin
+<variable> ::= 	<entire variable> | <indexed variable> 
+=end
+	def parseVariable 
+		say "parseVariable"
+		var=Variable.new
+		var.ident=expect :ident
+		if showNext.kind==:lsbracket
+			acceptIt
+			var.exp=parseExpression()
+			expect :rsbracket
+		end
+		return var
 	end

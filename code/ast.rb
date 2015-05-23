@@ -120,6 +120,13 @@ end
 #=============statement part ===============================
 
 class StatementPart < Ast
+	attr_accessor :cpste
+	def initialize cpste=nil
+		@cpste=cpste
+	end
+end
+
+class CompoundStatement < Ast
 	attr_accessor :list
 	def initialize list=[]
 		@list=list
@@ -161,6 +168,69 @@ class WriteStatelent < Ast
 	end
 end
 
+class OutputValue < Ast
+	attr_accessor :exp
+	def initialize exp =nil
+		@exp = exp
+	end
+end
+
+class StructuredStatement < Ast
+	attr_accessor :cmpste, :ifste,:whileste
+	def initialize cmpste=nil, ifste=nil, whileste=nil
+		@cmpte,@ifste,@whileste=cmpste,ifste,whileste
+	end
+end
+
+class IfStatement < Ast
+	attr_accessor :cond, :thenste, :elseste
+	def initialize cond=nil, thenste=nil, elseste=nil
+		@cond,@thenste,@elseste=cond,thenste,elseste
+	end
+end
+
+class WhileStatement < Ast
+	attr_accessor :cond, :ste
+	def initialize cond=nil, ste=nil
+		@cond,@ste=cond,ste
+	end
+end
+
+class Expression < Ast
+	attr_accessor :lsmpexp, :reop, :rsmpexp
+	def initialize lsmpexp=nil, reop=nil, rsmpexp=nil
+		@lsmpexp,@reop,@rsmpexp=lsmpexp,reop,rsmexp
+	end
+end
+
+class SimpleExpression < Ast
+	attr_accessor :sign, :termlist, :addingoplist
+	def initialize sign=nil, addingoplist=[], termlist=[]
+		@sign, @addingoplist,@termlist=sign, addingoplist, termlist
+	end
+end
+
+class Term < Ast
+	attr_accessor :factlist, :multiplyingoplist
+	def initialize factlist=[], mutiplyingoplist=[]
+		@factlist, @multiplyingoplist=multiplyingoplist
+	end
+end
+
+class Factor < Ast
+	attr_accessor :var, :const, :exp, :notfact
+	def initialize var=nil, const=nil, exp=nil, notfact=nil
+		@var,@cont,@exp,@notfact=var,const,exp,notfact
+	end
+end
+
+class Variable < Ast
+	attr_accessor :ident, :exp
+	def initialize ident=nil, exp=nil
+		@ident, @exp=ident,exp
+	end
+end
+#---------------------------divide line -----------------
 class Declarations < Ast
   attr_accessor :consts,:types,:vars,:procs
   def initialize consts=[],types=[],vars=[],procs=[]
