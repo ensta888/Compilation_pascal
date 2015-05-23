@@ -35,15 +35,23 @@ class FieldList < Ast
   end
 end
 
+class Program < Ast
+	attr_accessor :ident, :block
+  def initialize ident=nil,block=nil
+    @ident, @block=  ident, block
+  end
+end
+
 class Stmt < Ast
 end
 
-class Modul < Ast
-  attr_accessor :ident1,:ident2,:declarations,:statements
-  def initialize ident1=nil,ident2=nil,declarations=nil,statements=nil
-    @ident1,@ident2,@declarations,@statements  =  ident1,ident2,declarations,statements
-  end
+class Block < Ast
+	attr_accessor :varDecl, :procedureDecl, :ste
+	def initialize varDecl=nil, procedureDecl=nil, ste=nil
+		@varDecl, @procedureDecl, @ste= varDecl, procedureDecl, ste
+	end
 end
+
 #=============== declarations rule====================
 class Declarations < Ast
   attr_accessor :consts,:types,:vars,:procs

@@ -65,7 +65,7 @@ class Parser
   def parse filename
     str=IO.read(filename)
     @lexer.tokenize(str)
-    parseProgram()
+    parseModule()
   end
 
   def expect token_kind
@@ -89,37 +89,22 @@ class Parser
     puts txt if @verbose
   end
   #=========== parse method relative to the grammar ========
-=begin
-	<program> ::= 	program <identifier> ; <block> 
-=end
- def parseProgram
-   say "parseProgram"
-   expect :program
-   prg= Program.new
-   prg.ident = Identifier.new(expect(:ident))
+ def parseModule
+   say "parseModule"
+   expect :module
+   modul= Modul.new
+   modul.ident1 = Identifier.new(expect(:ident))
    expect :semicolon
-   prg.block=parseBlock()
-   return prg
- end
-
-=begin
-<block> ::= 	<variable declaration part>
-							<procedure declaration part>
-							<statement part> 
-=end
-	def parseBlock
-		parseVariableDeclaration()
-		parseProcedureDeclaration()
-		parseStatement()
-	end
-
-=begin
-<variable declaration part> ::= 	<empty> |
-																	var <variable declaration> ;
-   																  { <variable declaration> ; } 
-=end
-	def parseVariableDeclaration
-	end
+   modul.declarations= parseDeclarations()
+   if showNext.kind==:begin
+     acceptIt
+     modul.statements=parseStatementSequence()
+   end
+   expect :end 
+   modul.ident2 = Identifier.new(expect(:ident))
+   expect :dot
+   return modul
+  end
     
   def parseStatementSequence
     node = StatementSequence.new
