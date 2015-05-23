@@ -23,32 +23,32 @@ PASCAL_TOKEN_DEF={
   :comma	=> /\,/,
   :semicolon	=> /\;/,
   :colon	=> /:/,
-  :2dot		=> /../, 
- 
+  :2dot		=> /../,  
+
+
+  :module       => /module|MODULE/,
+
+
+
+
+
+
+  
+
+
+
+
+  :eq		=> /\=/,
+
+  
+  :tilde	    => /\~/,
+  :hashtag	  => /\#/,
+   
+
   :div		=> /div|DIV/,
   :or		  => /or|OR/,
-  :and    => /and|AND/,
-  :not    => /not|NOT/,
-
-  :if     => /if|IF/,
-  :then   => /then|THEN/,
-  :else   => /else|ELSE/,
-  :of     => /of|OF/,
-  :while  => /while|WHILE/,
-	:do     => /do|DO/,
-	:begin  => /begin|BEGIN/,
-	:end    => /end|END/,
-	:read   => /read|READ/,
-	:write  => /write|WRITE/,
-	:var    => /var|VAR/,
-  :array  => /array|ARRAY/,
-	:procedure => /procedure|PROCCEDURE/,
-	:program   => /program|PROGRAM/,
-
-  :integer   => /integer|INTERGER/,
-	:Boolean   => /Boolean|BOOLEAN/,
-  :true      => /true|TRUE/,
-  :false     => /false|FALSE/
+  :mod		=> /mod|MOD/,
+  :and		=> /\&/,
 
   :ident	  => /[a-zA-Z][a-zA-Z0-9_]*/,
   :integer	=> /[0-9]+/,
