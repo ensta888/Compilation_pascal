@@ -1,5 +1,5 @@
 program Lesson1_Program1;   
-BEgin    
- Write('Hello World. Prepare to learn PASCAL!!');
- Readln;   
-End.
+begin    
+ write('Hello World. Prepare to learn PASCAL!!');
+ areadln;   
+end.

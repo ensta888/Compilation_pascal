@@ -281,6 +281,7 @@ class Parser
 		if showNext.kind==:begin
 			ste.stSte=parseStructuredStatement()
 		else
+			p shownext.begin
 			ste.spSte=parseSimpleStatement()
 		end
 		return ste
@@ -295,7 +296,11 @@ class Parser
 		case showNext.kind
 		when :read then 
 			spste.readste=parseReadStatement()
-		when :write then
+		when :readln then
+			spste.readste=parseReadStatement()
+		when :write  then
+			spste.writeste=parseWriteStatement()
+		when :writeln  then
 			spste.writeste=parseWriteStatement()
 		#assignment and procedurement
 		else
