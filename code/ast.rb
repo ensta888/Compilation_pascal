@@ -148,9 +148,9 @@ class SimpleStatement < Ast
 end
 
 class ReadStatement < Ast
-	attr_accessor :varlist
-	def initialize varlist=[]
-		@varlist=varlist
+	attr_accessor :name,:varlist
+	def initialize name=nil,varlist=[]
+		@name,@varlist=name,varlist
 	end
 end
 
@@ -213,14 +213,14 @@ end
 class Term < Ast
 	attr_accessor :factlist, :multiplyingoplist
 	def initialize factlist=[], mutiplyingoplist=[]
-		@factlist, @multiplyingoplist=multiplyingoplist
+		@factlist, @multiplyingoplist=factlist,multiplyingoplist
 	end
 end
 
 class Factor < Ast
-	attr_accessor :var, :intconst, :stringconstlist, :exp, :notfact
-	def initialize var=nil, intconst=nil, stringconstlist=[],exp=nil, notfact=nil
-		@var,@intconst,@stringconstlist,@exp,@notfact=var,intconst,stringconstlist,exp,notfact
+	attr_accessor :var, :intconst, :stringconst, :exp, :notfact
+	def initialize var=nil, intconst=nil, stringconst=[],exp=nil, notfact=nil
+		@var,@intconst,@stringconst,@exp,@notfact=var,intconst,stringconst,exp,notfact
 	end
 end
 

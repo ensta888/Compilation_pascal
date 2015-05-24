@@ -24,7 +24,7 @@ PASCAL_TOKEN_DEF={
   :semicolon	=> /\;/,
   :colon	=> /:/,
   :twodot		=> /\.\./, 
-	:quote  => /'/,
+	
  
   :div		=> /div|DIV/,
   :or		  => /or|OR/,
@@ -40,7 +40,9 @@ PASCAL_TOKEN_DEF={
 	:begin  => /begin|BEGIN/,
 	:end    => /end|END/,
 	:read   => /read|READ/,
+	:readln => /readln|READLN/,
 	:write  => /write|WRITE/,
+	:writeln  => /writeln|WRITELN/,
 	:var    => /var|VAR/,
   :array  => /array|ARRAY/,
 	:procedure => /procedure|PROCCEDURE/,
@@ -52,6 +54,9 @@ PASCAL_TOKEN_DEF={
 
   :ident	  => /[a-zA-Z][a-zA-Z0-9_]*/,
   :integer	=> /[0-9]+/,
+	#:stringConst => /\'[\s+\w+\s+]*\'/,
+	:stringConst => /\'.+\'/,
+
 }
 
 class Parser
@@ -261,7 +266,7 @@ class Parser
 		ste=CompoundStatement.new
 		ste.list << parseStatement()
 		while showNext.kind==:semicolon
-			accepIt
+			acceptIt
 			ste.list << parseStatement()
 		end
 		return ste
@@ -303,15 +308,20 @@ class Parser
 =end
 	def parseReadStatement
 		say "parseReadStatement"
-		expect :read
 		readste=ReadStatement.new
-		expect :lbracket
-		readste.varlist << parseInputVariable()
-		while showNext.kind==:comma
-			acceptIt
+		p showNext.kind
+		if showNext.kind==:read 
+			readste.name=acceptIt
+			expect :lbracket
 			readste.varlist << parseInputVariable()
+			while showNext.kind==:comma
+				acceptIt
+				readste.varlist << parseInputVariable()
+			end
+			expect :rbracket
+		elsif showNext.kind==:readln 
+			readste.name=acceptIt
 		end
-		expect :rbracket
 		return readste
 	end
 
@@ -333,11 +343,14 @@ class Parser
 		writeste=WriteStatement.new
 		expect :write
 		expect :lbracket
+		#p "Write Statement"
+		#p showNext.kind
 		writeste.outputlist << parseOutputValue()
 		while showNext.kind==:comma
 			acceptIt
 			writeste.outputlist << parseOutputValue()
 		end
+		expect :rbracket
 		return writeste
 	end
 
@@ -422,6 +435,8 @@ class Parser
 		say "parseSimpleExpression"
 		smpexp=SimpleExpression.new
 		sgn=[:plus,:substract]
+		#p "simple exoression"
+		#p showNext.kind
 		if sgn.include? showNext.kind
 			smpexp.sign=acceptIt
 		end
@@ -455,6 +470,7 @@ class Parser
 	def parseFactor
 		say "parseFactor"
 		fact=Factor.new
+		#p showNext.kind
 		case showNext.kind
 		when :not then
 			acceptIt
@@ -468,18 +484,15 @@ class Parser
 		when :integer then
 			fact.intconst=acceptIt
 		#character const
-		when :quote then
-			acceptIt
-			while showNext.kind != :quote
-				fact.stringconstlist << acceptIt
-			end
-			expect :quote
+		when :stringConst then
+			fact.stringconst = (expect :stringConst)
 		when :ident then
 		# here we need to judge if it was a constant identifier or a variable identifier 
 			fact.var=parseVariable()
 		else
 			raise "expecting : identifier number '(' or '~' at #{lexer.pos}"
 		end
+		#p fact
 		return fact
 	end
 

@@ -13,7 +13,7 @@ class Compiler
   end
 
   def compile filename
-    raise "usage error : Oberon-0 file needed !" if not filename
+    raise "usage error : Pascal file needed !" if not filename
     puts "==> compiling #{filename}"
     @ast=@parser.parse(filename)
     #pp ast
