@@ -23,7 +23,8 @@ PASCAL_TOKEN_DEF={
   :comma	=> /\,/,
   :semicolon	=> /\;/,
   :colon	=> /:/,
-  :twodot		=> /../, 
+  :twodot		=> /\.\./, 
+	:quote  => /'/,
  
   :div		=> /div|DIV/,
   :or		  => /or|OR/,
@@ -47,7 +48,7 @@ PASCAL_TOKEN_DEF={
 
 	:Boolean   => /Boolean|BOOLEAN/,
   :true      => /true|TRUE/,
-  :false     => /false|FALSE/
+  :false     => /false|FALSE/,
 
   :ident	  => /[a-zA-Z][a-zA-Z0-9_]*/,
   :integer	=> /[0-9]+/,
@@ -70,6 +71,7 @@ class Parser
 
   def expect token_kind
     next_tok=@lexer.get_next
+		p next_tok
     if next_tok.kind!=token_kind
       puts "expecting #{token_kind}. Got #{next_tok.kind}"
       raise "parsing error on line #{next_tok.pos.first}"
@@ -111,8 +113,8 @@ class Parser
 		say "parseBlock"
 		blk=Block.new
 		blk.varDecl=parseVariableDeclarationPart()
-		blk.procedureDecl=parseProcedureDeclaration()
-		blk.ste=parseStatement()
+		blk.procedureDecl=parseProcedureDeclarationPart()
+		blk.ste=parseStatementPart()
 		return blk
 	end
 
@@ -125,12 +127,14 @@ class Parser
 =end
 	def parseVariableDeclarationPart
 		say "parseVariableDeclarationPart"
-		expect :var
 		varDecls=VariableDeclarationPart.new
-		varDecls.list << parseVariableDeclaration()
-		while showNext.kind==:semicolon
+		if showNext.kind==:var
 			acceptIt
 			varDecls.list << parseVariableDeclaration()
+			while showNext.kind==:semicolon
+				acceptIt
+				varDecls.list << parseVariableDeclaration()
+			end
 		end
 		return varDecls
 	end
@@ -141,10 +145,10 @@ class Parser
 	def parseVariableDeclaration
 		say "parseVariableDeclaration"
 		vars=VariableDeclaration.new
-		vars.list << expect :ident
+		vars.list << (expect :ident)
 		while showNext.kind==:semicolon
 			acceptIt
-			vars.list << expect :ident
+			vars.list << (expect :ident)
 		end
 		expect :colon
 		vars.type=parseType()
@@ -216,11 +220,9 @@ class Parser
 <procedure declaration part> ::= 	{ <procedure declaration> ; }
 =end
 	def parseProcedureDeclarationPart
-		say "parseprocedurePart"
+		say "parseProcedurePart"
 		pcd=ProcedureDeclarationPart.new
-		pcd.list << parseProcedureDeclaration()
-		while showNext.kind==:semicolon
-			acceptIt
+		while showNext.kind==:procedure
 			pcd.list << parseProcedureDeclaration()
 		end
 		return pcd
@@ -244,6 +246,7 @@ class Parser
 <statement part> ::= 	<compound statement> 
 =end
 	def parseStatementPart
+		say "parseStatementPart"
 		ste=StatementPart.new
 		ste.cpste=parseCompoundStatement()
 		return ste
@@ -460,8 +463,17 @@ class Parser
 			acceptIt
 			fact.exp=parseExpression()
 			expect :rbracket
+		#const
+		#integer const
 		when :integer then
-			fact.const=acceptIt
+			fact.intconst=acceptIt
+		#character const
+		when :quote then
+			acceptIt
+			while showNext.kind != :quote
+				fact.stringconstlist << acceptIt
+			end
+			expect :quote
 		when :ident then
 		# here we need to judge if it was a constant identifier or a variable identifier 
 			fact.var=parseVariable()
@@ -485,3 +497,5 @@ class Parser
 		end
 		return var
 	end
+
+end

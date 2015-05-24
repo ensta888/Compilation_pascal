@@ -1,0 +1,5 @@
+program Lesson1_Program1;   
+BEgin    
+ Write('Hello World. Prepare to learn PASCAL!!');
+ Readln;   
+End.

@@ -9,7 +9,7 @@ class Compiler
   def initialize h={}
     puts "Pascal compiler".center(40,'=')
     #pp h
-    @parser=Parser.new true
+    @parser=Parser.new
   end
 
   def compile filename

@@ -219,7 +219,7 @@ end
 
 class Factor < Ast
 	attr_accessor :var, :intconst, :stringconstlist, :exp, :notfact
-	def initialize var=nil, intconst=nil, stringconstlist=[],exp=nil, notfact=nil
+	def initialize var=nil, intconst=nil, exp=nil, notfact=nil
 		@var,@intconst,@stringconstlist,@exp,@notfact=var,intconst,stringconstlist,exp,notfact
 	end
 end
