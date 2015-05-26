@@ -43,9 +43,9 @@ class Program < Ast
 end
 
 class Block < Ast
-	attr_accessor :varDecl, :procedureDecl, :ste
-	def initialize varDecl=nil, procedureDecl=nil, ste=nil
-		@varDecl, @procedureDecl, @ste= varDecl, procedureDecl, ste
+	attr_accessor :varDeclp, :procedureDeclp, :step
+	def initialize varDeclp=nil, procedureDeclp=nil, step=nil
+		@varDeclp, @procedureDeclp, @step= varDeclp, procedureDeclp, step
 	end
 end
 
@@ -175,6 +175,20 @@ class OutputValue < Ast
 	end
 end
 
+class AssignmentStatement < Ast
+	attr_accessor :var,:exp
+	def initialize var=nil, exp=nil
+		@var,@exp=var,exp
+	end
+end
+
+class ProcedureStatement < Ast
+	attr_accessor :ident
+	def initialize ident=nil
+		@ident=ident
+	end
+end
+
 class StructuredStatement < Ast
 	attr_accessor :cmpste, :ifste,:whileste
 	def initialize cmpste=nil, ifste=nil, whileste=nil
@@ -213,7 +227,7 @@ end
 class Term < Ast
 	attr_accessor :factlist, :multiplyingoplist
 	def initialize factlist=[], mutiplyingoplist=[]
-		@factlist, @multiplyingoplist=multiplyingoplist
+		@factlist, @multiplyingoplist=factlist,multiplyingoplist
 	end
 end
 

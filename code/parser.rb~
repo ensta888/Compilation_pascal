@@ -40,9 +40,9 @@ PASCAL_TOKEN_DEF={
 	:begin  => /begin|BEGIN/,
 	:end    => /end|END/,
 	:read   => /read|READ/,
-	:readln => /readln|READLN/,
+	#:readln => /readln|READLN/,
 	:write  => /write|WRITE/,
-	:writeln  => /writeln|WRITELN/,
+	#:writeln  => /writeln|WRITELN/,
 	:var    => /var|VAR/,
   :array  => /array|ARRAY/,
 	:procedure => /procedure|PROCCEDURE/,
@@ -54,14 +54,13 @@ PASCAL_TOKEN_DEF={
 
   :ident	  => /[a-zA-Z][a-zA-Z0-9_]*/,
   :integer	=> /[0-9]+/,
-	#:stringConst => /\'[\s+\w+\s+]*\'/,
 	:stringConst => /\'.+\'/,
 
 }
 
 class Parser
 
-  attr_accessor :lexer
+  attr_accessor :lexer, :prg
 
   def initialize verbose=false
     @lexer=Lexer.new(PASCAL_TOKEN_DEF)
@@ -71,12 +70,12 @@ class Parser
   def parse filename
     str=IO.read(filename)
     @lexer.tokenize(str)
-    parseProgram()
+    @prg=parseProgram()
   end
 
   def expect token_kind
     next_tok=@lexer.get_next
-		p next_tok
+		#p next_tok
     if next_tok.kind!=token_kind
       puts "expecting #{token_kind}. Got #{next_tok.kind}"
       raise "parsing error on line #{next_tok.pos.first}"
@@ -117,8 +116,8 @@ class Parser
 	def parseBlock
 		say "parseBlock"
 		blk=Block.new
-		blk.varDecl=parseVariableDeclarationPart()
-		blk.procedureDecl=parseProcedureDeclarationPart()
+		blk.varDeclp=parseVariableDeclarationPart()
+		blk.procedureDeclp=parseProcedureDeclarationPart()
 		blk.ste=parseStatementPart()
 		return blk
 	end
@@ -265,7 +264,8 @@ class Parser
 		expect :begin
 		ste=CompoundStatement.new
 		ste.list << parseStatement()
-		while showNext.kind==:semicolon
+		expect :semicolon
+		while showNext.kind!=:end
 			acceptIt
 			ste.list << parseStatement()
 		end
@@ -281,7 +281,7 @@ class Parser
 		if showNext.kind==:begin
 			ste.stSte=parseStructuredStatement()
 		else
-			p shownext.begin
+			#p showNext.kind
 			ste.spSte=parseSimpleStatement()
 		end
 		return ste
@@ -296,18 +296,40 @@ class Parser
 		case showNext.kind
 		when :read then 
 			spste.readste=parseReadStatement()
-		when :readln then
-			spste.readste=parseReadStatement()
 		when :write  then
 			spste.writeste=parseWriteStatement()
-		when :writeln  then
-			spste.writeste=parseWriteStatement()
 		#assignment and procedurement
+		when :ident then
+			if prg.block.procedureDeclp.list.include? showNext.value
+			#procedure statement
+				spste.procedste=parseProcedureStatement()
+			else
+			#assignement
+				spste.assignste=parseAssignmentStatement()
+			end
 		else
 			raise "expecting : identifier number '(' or '~' at #{lexer.pos}"
 		end
+		return spste
 	end
 #--------------------lack of assignement and procedure statement
+
+	def parseProcedureStatement
+		say "parseProcedureStatement"
+		pcd=ProcedureStatement.new
+		pcd.ident=(expect :ident)
+		return pcd
+	end
+
+	def parseAssignStatement
+		say "parseAssignStatement"
+		agnste=AssignmentStatement.new
+		agnste.var=parseVariable()
+		expect :assign
+		agnste.exp=parseExpression()
+		return agnste
+	end
+
 =begin
 <read statement> ::= 	read ( <input variable> { , <input variable> } )
 =end

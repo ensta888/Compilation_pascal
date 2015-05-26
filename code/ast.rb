@@ -43,9 +43,9 @@ class Program < Ast
 end
 
 class Block < Ast
-	attr_accessor :varDecl, :procedureDecl, :ste
-	def initialize varDecl=nil, procedureDecl=nil, ste=nil
-		@varDecl, @procedureDecl, @ste= varDecl, procedureDecl, ste
+	attr_accessor :varDeclp, :procedureDeclp, :step
+	def initialize varDeclp=nil, procedureDeclp=nil, step=nil
+		@varDeclp, @procedureDeclp, @step= varDeclp, procedureDeclp, step
 	end
 end
 
@@ -141,9 +141,9 @@ class Statement < Ast
 end
 
 class SimpleStatement < Ast
-	attr_accessor :assign, :proced, :readste, :writeste
-	def initialize assign=nil, proced=nil, readste=nil, writeste=nil
-		@assign, @proced, @readste, @writeste=assign,proced,readste,writeste
+	attr_accessor :assignste, :procedste, :readste, :writeste
+	def initialize assignste=nil, procedste=nil, readste=nil, writeste=nil
+		@assignste, @procedste, @readste, @writeste=assignste,procedste,readste,writeste
 	end
 end
 
@@ -172,6 +172,20 @@ class OutputValue < Ast
 	attr_accessor :exp
 	def initialize exp =nil
 		@exp = exp
+	end
+end
+
+class AssignmentStatement < Ast
+	attr_accessor :var,:exp
+	def initialize var=nil, exp=nil
+		@var,@exp=var,exp
+	end
+end
+
+class ProcedureStatement < Ast
+	attr_accessor :ident
+	def initialize ident=nil
+		@ident=ident
 	end
 end
 
