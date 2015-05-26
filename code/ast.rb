@@ -90,7 +90,7 @@ end
 
 class SimpleType < Ast
 	attr_accessor :typeIdent
-	def initialize typeIdent
+	def initialize typeIdent=nil
 		@typeIdent=typeIdent
 	end
 end

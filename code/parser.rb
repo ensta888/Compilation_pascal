@@ -135,9 +135,12 @@ class Parser
 		if showNext.kind==:var
 			acceptIt
 			varDecls.list << parseVariableDeclaration()
-			while showNext.kind==:semicolon
-				acceptIt
+			expect :semicolon
+			p showNext.kind
+			while showNext.kind!=:begin and showNext.kind!=:procedure
+				p showNext.kind							
 				varDecls.list << parseVariableDeclaration()
+				expect :semicolon
 			end
 		end
 		return varDecls
@@ -150,7 +153,7 @@ class Parser
 		say "parseVariableDeclaration"
 		vars=VariableDeclaration.new
 		vars.list << (expect :ident)
-		while showNext.kind==:semicolon
+		while showNext.kind==:comma
 			acceptIt
 			vars.list << (expect :ident)
 		end
@@ -207,7 +210,7 @@ class Parser
 		say "parseSimpleType"
 		smpType=SimpleType.new
 		smpType.typeIdent=parseTypeIdentifier()
-		return smptype
+		return smpType
 	end
 
 =begin

@@ -141,9 +141,9 @@ class Statement < Ast
 end
 
 class SimpleStatement < Ast
-	attr_accessor :assign, :proced, :readste, :writeste
-	def initialize assign=nil, proced=nil, readste=nil, writeste=nil
-		@assign, @proced, @readste, @writeste=assign,proced,readste,writeste
+	attr_accessor :assignste, :procedste, :readste, :writeste
+	def initialize assignste=nil, procedste=nil, readste=nil, writeste=nil
+		@assignste, @procedste, @readste, @writeste=assignste,procedste,readste,writeste
 	end
 end
 
