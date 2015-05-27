@@ -54,9 +54,9 @@ end
  <variable declaration part> 
 =end
 class VariableDeclarationPart < Ast
-	attr_accessor :list
-	def initialize list =[]
-		@list=list
+	attr_accessor :declList
+	def initialize declList =[]
+		@declList=declLlist
 	end
 end
 
@@ -90,7 +90,7 @@ end
 
 class SimpleType < Ast
 	attr_accessor :typeIdent
-	def initialize typeIdent
+	def initialize typeIdent=nil
 		@typeIdent=typeIdent
 	end
 end

@@ -54,9 +54,9 @@ end
  <variable declaration part> 
 =end
 class VariableDeclarationPart < Ast
-	attr_accessor :list
-	def initialize list =[]
-		@list=list
+	attr_accessor :declList
+	def initialize declList =[]
+		@declList=declList
 	end
 end
 

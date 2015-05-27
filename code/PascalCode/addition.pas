@@ -4,10 +4,9 @@ var
 
 begin 
  write('Input number 1:'); 
- readln(Num1);
- writeln('Input number 2:');
- readln(Num2);
+ read(Num1);
+ write('Input number 2:');
+ read(Num2);
  Sum := Num1 + Num2; 
- writeln(Sum);
- readln;
+ write(Sum);
 end.

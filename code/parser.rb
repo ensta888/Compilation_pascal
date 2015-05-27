@@ -40,12 +40,12 @@ PASCAL_TOKEN_DEF={
 	:begin  => /begin|BEGIN/,
 	:end    => /end|END/,
 	:read   => /read|READ/,
-	#:readln => /readln|READLN/,
+	:readln => /readln|READLN/,
 	:write  => /write|WRITE/,
 	#:writeln  => /writeln|WRITELN/,
 	:var    => /var|VAR/,
   :array  => /array|ARRAY/,
-	:procedure => /procedure|PROCCEDURE/,
+	:procedure => /procedure|PROCEDURE/,
 	:program   => /program|PROGRAM/,
 
 	:Boolean   => /Boolean|BOOLEAN/,
@@ -60,10 +60,12 @@ PASCAL_TOKEN_DEF={
 
 class Parser
 
-  attr_accessor :lexer, :prg
+  attr_accessor :lexer, :prg, :varIdentList, :procedureIdentList
 
   def initialize verbose=false
     @lexer=Lexer.new(PASCAL_TOKEN_DEF)
+		@varIdentList=[]
+		@procedureIdentList=[]
     @verbose=verbose
   end
 
@@ -105,6 +107,7 @@ class Parser
    prg.ident = Identifier.new(expect(:ident))
    expect :semicolon
    prg.block=parseBlock()
+	 expect :dot
    return prg
  end
 
@@ -134,12 +137,12 @@ class Parser
 		varDecls=VariableDeclarationPart.new
 		if showNext.kind==:var
 			acceptIt
-			varDecls.list << parseVariableDeclaration()
+			varDecls.declList << parseVariableDeclaration()
 			expect :semicolon
-			p showNext.kind
+			#p showNext.kind
 			while showNext.kind!=:begin and showNext.kind!=:procedure
-				p showNext.kind							
-				varDecls.list << parseVariableDeclaration()
+				#p showNext.kind							
+				varDecls.declList << parseVariableDeclaration()
 				expect :semicolon
 			end
 		end
@@ -152,10 +155,14 @@ class Parser
 	def parseVariableDeclaration
 		say "parseVariableDeclaration"
 		vars=VariableDeclaration.new
-		vars.list << (expect :ident)
+		ident= (expect :ident)
+		vars.list << ident
+		@varIdentList << ident.name
 		while showNext.kind==:comma
 			acceptIt
-			vars.list << (expect :ident)
+			ident= (expect :ident)
+			vars.list << ident
+			@varIdentList << ident.name
 		end
 		expect :colon
 		vars.type=parseType()
@@ -242,7 +249,9 @@ class Parser
 		say "parseProcedureDeclaration"
 		pcd=ProcedureDeclaration.new
 		expect :procedure
-		pcd.ident= expect :ident
+		ident= (expect :ident)
+		pcd.ident= ident
+		@procedureIdentList << ident
 		expect :semicolon
 		pcd.block= parseBlock()
 		return pcd
@@ -260,7 +269,7 @@ class Parser
 	end
 
 =begin
-<compound statement> ::= 	begin <statement>{ ; <statement> } end
+<compound statement> ::= 	begin <statement>;{ <statement> } end
 =end
 	def parseCompoundStatement
 		say "parseCompoundStatement"
@@ -269,8 +278,8 @@ class Parser
 		ste.list << parseStatement()
 		expect :semicolon
 		while showNext.kind!=:end
-			acceptIt
 			ste.list << parseStatement()
+			expect :semicolon
 		end
 		return ste
 	end
@@ -281,7 +290,7 @@ class Parser
 	def parseStatement
 		say "parseStatement"
 		ste=Statement.new
-		if showNext.kind==:begin
+		if showNext.kind==:begin or showNext.kind==:if or showNext.kind == :while
 			ste.stSte=parseStructuredStatement()
 		else
 			#p showNext.kind
@@ -296,6 +305,7 @@ class Parser
 	def parseSimpleStatement
 		say "parseSimpleStatement"
 		spste=SimpleStatement.new
+		p showNext.kind
 		case showNext.kind
 		when :read then 
 			spste.readste=parseReadStatement()
@@ -303,12 +313,19 @@ class Parser
 			spste.writeste=parseWriteStatement()
 		#assignment and procedurement
 		when :ident then
-			if prg.block.procedureDeclp.list.include? showNext.value
-			#procedure statement
-				spste.procedste=parseProcedureStatement()
-			else
-			#assignement
+			#p "simple statement ident is #{showNext.kind}"
+			p showNext.value
+			p @varIdentList
+			if @varIdentList.include? showNext.value
+				#assignement statement
 				spste.assignste=parseAssignmentStatement()
+			else
+				if @procedureIdentList.include? showNext.value
+					#procedure statement
+					spste.procedste=parseProcedureStatement()
+				else
+					raise "error : identifier not defined at #{lexer.pos}"
+				end
 			end
 		else
 			raise "expecting : identifier number '(' or '~' at #{lexer.pos}"
