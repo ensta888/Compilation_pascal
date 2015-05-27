@@ -23,8 +23,8 @@ PASCAL_TOKEN_DEF={
   :comma	=> /\,/,
   :semicolon	=> /\;/,
   :colon	=> /:/,
-  :twodot		=> /\.\./, 
-	
+  :twodot		=> /\.\./,    # need to check
+	 
  
   :div		=> /div|DIV/,
   :or		  => /or|OR/,
@@ -107,6 +107,7 @@ class Parser
    prg.ident = Identifier.new(expect(:ident))
    expect :semicolon
    prg.block=parseBlock()
+	 
 	 expect :dot
    return prg
  end
@@ -157,12 +158,12 @@ class Parser
 		vars=VariableDeclaration.new
 		ident= (expect :ident)
 		vars.list << ident
-		@varIdentList << ident.name
+		@varIdentList << ident
 		while showNext.kind==:comma
 			acceptIt
 			ident= (expect :ident)
 			vars.list << ident
-			@varIdentList << ident.name
+			@varIdentList << ident
 		end
 		expect :colon
 		vars.type=parseType()
@@ -281,6 +282,7 @@ class Parser
 			ste.list << parseStatement()
 			expect :semicolon
 		end
+		expect :end
 		return ste
 	end
 
@@ -305,7 +307,7 @@ class Parser
 	def parseSimpleStatement
 		say "parseSimpleStatement"
 		spste=SimpleStatement.new
-		p showNext.kind
+		#p showNext.kind
 		case showNext.kind
 		when :read then 
 			spste.readste=parseReadStatement()
@@ -314,13 +316,26 @@ class Parser
 		#assignment and procedurement
 		when :ident then
 			#p "simple statement ident is #{showNext.kind}"
-			p showNext.value
-			p @varIdentList
-			if @varIdentList.include? showNext.value
+			#p showNext.value
+			isInVar=false
+			isInPrd=false
+			@varIdentList.each do |varlist|
+				if varlist.value ==showNext.value
+					isInVar=true
+					break
+				end
+			end
+			@procedureIdentList.each do |prdlist|
+				if prdlist.value ==showNext.value
+					isInPrd=true
+					break
+				end
+			end
+			if isInVar
 				#assignement statement
 				spste.assignste=parseAssignmentStatement()
 			else
-				if @procedureIdentList.include? showNext.value
+				if isInPrd
 					#procedure statement
 					spste.procedste=parseProcedureStatement()
 				else
@@ -341,8 +356,8 @@ class Parser
 		return pcd
 	end
 
-	def parseAssignStatement
-		say "parseAssignStatement"
+	def parseAssignmentStatement
+		say "parseAssignmentStatement"
 		agnste=AssignmentStatement.new
 		agnste.var=parseVariable()
 		expect :assign
