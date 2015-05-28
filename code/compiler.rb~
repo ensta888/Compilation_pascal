@@ -13,14 +13,23 @@ class Compiler
   end
 
   def compile filename
-    raise "usage error : Oberon-0 file needed !" if not filename
+    raise "usage error : Pascal file needed !" if not filename
     puts "==> compiling #{filename}"
     @ast=@parser.parse(filename)
     #pp ast
-    simpleVisit
-    generate_dot
+		generate_js
+    #simpleVisit
+    #generate_dot
   end
   
+	def generate_js
+		#p @ast
+		string=IO.read "template.txt"
+		engine = ERB.new(string)
+		generated_code= engine.result(binding)
+		puts generated_code
+	end
+
   def simpleVisit
     visitor=Visitor.new
     visitor.doIt(@ast)

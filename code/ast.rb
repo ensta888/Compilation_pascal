@@ -28,12 +28,6 @@ end
 #   end
 # end
 
-class FieldList < Ast
-  attr_accessor :identList,:type
-  def initialize identList=[],type=nil
-    @identList,@type = identList, type
-  end
-end
 
 class Program < Ast
 	attr_accessor :ident, :block
@@ -64,6 +58,13 @@ class VariableDeclaration < Ast
 	attr_accessor :list, :type
 	def initialize list=[], type=nil
 		@list, @type=list, type
+	end
+end
+
+class VariableDeclarationWithValue < Ast
+	attr_accessor :ident, :value
+	def initialize ident=nil, value=nil
+		@ident,@value=ident,value
 	end
 end
 

@@ -1,7 +1,7 @@
 <html>
 <body>
 <script type="text/javascript">
-<%= @ast.ident%>
+<%= @ast%>
 
 </script>
 </body>

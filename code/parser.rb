@@ -72,7 +72,8 @@ class Parser
   def parse filename
     str=IO.read(filename)
     @lexer.tokenize(str)
-    @prg=parseProgram()
+    code=parseProgram()
+		return code
   end
 
   def expect token_kind
@@ -151,22 +152,38 @@ class Parser
 	end
     
 =begin
-<variable declaration> ::= 	<identifier > { , <identifier> } : <type> 
+<variable declaration> ::= 	
+	<identifier> : <type> = value | <identifier > { , <identifier> } : <type> 
 =end
 	def parseVariableDeclaration
 		say "parseVariableDeclaration"
 		vars=VariableDeclaration.new
+		varIdVal=VariableDeclarationWithValue.new
 		ident= (expect :ident)
-		vars.list << ident
+		varIdVal.ident=ident
+		varIdVal.value=nil
+		vars.list << varIdVal
 		@varIdentList << ident
+		canBeInitialize=true
 		while showNext.kind==:comma
+			canBeInitialize=false
 			acceptIt
 			ident= (expect :ident)
-			vars.list << ident
+			varIdVal.ident=ident
+			varIdVal.value=nil
+			vars.list << varIdVal
 			@varIdentList << ident
 		end
 		expect :colon
 		vars.type=parseType()
+		if canBeInitialize 
+			if showNext.kind==:eq
+			# value need to match the type !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!to do
+				acceptIt
+				value=acceptIt
+				vars.list.first.value=value
+			end
+		end
 		return vars
 	end
 

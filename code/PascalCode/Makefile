@@ -1,6 +1,6 @@
 
-testPascal:	testPascal.pas
-	fpc testPascal.pas
+vardeclaration:	vardeclaration.pas
+	fpc vardeclaration.pas
 
 clearn:	
-	rm *.o testPascal
+	rm *.o vardeclaration
