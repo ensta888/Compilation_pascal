@@ -1,0 +1,6 @@
+Bienvenue au port !
+
+La liste des bateaux de la flotte <%=flotte.name%> est la suivante :
+<%for i in flotte.boats%>
+ - <%=i.name%> : <%=i.dest%>
+<%end%>
