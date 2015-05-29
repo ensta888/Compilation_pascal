@@ -2,16 +2,22 @@
 <body>
 <script type="text/javascript">
 <%= @ast.ident%>
-
+/*var declaration part*/
 <% if @ast.block.varDeclp != nil %>
-	<%= @ast.block.varDeclp.declList%>
 	<% @ast.block.varDeclp.declList.each do |vardecl| %>
 		<% vardecl.list.each do |vardeclwithval| %> 
-			<%= vardeclwithval.ident %>
+			<% if vardeclwithval.val !=nil %>
+			var <%= vardeclwithval.ident.value %> = <%= vardeclwithval.val.value %>;
+			<% else %>
+				var <%= vardeclwithval.ident.value %>;
+			<% end %>
 		<% end %>
 	<% end %>
 <% end %>
-
+/*procedure declaration part*/
+<%= @ast.block.procedureDeclp%>
+/*statement part*/
+<%= @ast.block.step%>
 </script>
 </body>
 </html>
