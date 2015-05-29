@@ -62,9 +62,9 @@ class VariableDeclaration < Ast
 end
 
 class VariableDeclarationWithValue < Ast
-	attr_accessor :ident, :value
-	def initialize ident=nil, value=nil
-		@ident,@value=ident,value
+	attr_accessor :ident, :val
+	def initialize ident=nil, val=nil
+		@ident,@val=ident,val
 	end
 end
 
@@ -191,9 +191,9 @@ class ProcedureStatement < Ast
 end
 
 class StructuredStatement < Ast
-	attr_accessor :cmpste, :ifste,:whileste
-	def initialize cmpste=nil, ifste=nil, whileste=nil
-		@cmpte,@ifste,@whileste=cmpste,ifste,whileste
+	attr_accessor :cmpste, :ifste,:whileste, :forste
+	def initialize cmpste=nil, ifste=nil, whileste=nil,  forste=nil
+		@cmpte,@ifste,@whileste, @forste=cmpste,ifste,whileste, forste
 	end
 end
 

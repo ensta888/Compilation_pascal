@@ -453,7 +453,7 @@ class Parser
 
 #----------------structures statement------------
 =begin
-<structured statement> ::= 	<compound statement> | <if statement> | <while statement> 
+<structured statement> ::= 	<compound statement> | <if statement> | <while statement> | <for statement>
 =end
 	def parseStructuredStatement
 		say "parseStructuredStatement"
@@ -465,6 +465,8 @@ class Parser
 			strSte.ifste=parseIfStatement()
 		when :while then
 			strSte.whileste=parseWhileStatement()
+		when :for then
+			strSte.forste=parseForStatement()
 		else
 			raise "expecting : identifier number '(' or '~' at #{lexer.pos}"
 		end
@@ -498,6 +500,34 @@ class Parser
 		expect :do
 		whileste.ste=parseStatement()
 		return whileste
+	end
+
+=begin
+for < variable > ::= < initial_value > to [down to] < final_value > do <statement part>;
+=end
+	def parseForStatement
+		say "parseForStatement"
+		forste=ForStatement.new
+		expect :for
+		forste.var=parseVariable()
+		expect :assign
+		forste.inival=(expect :integer)
+		case showNext.value
+		when "to" then
+			forste.ord=acceptIt
+		when "down" then
+			forste.ord=acceptIt
+			if shoeNext.value != "to"
+				raise "expecting : to at #{lexer.pos}"
+			end
+			acceptIt
+		else
+			raise "expecting : to or down to at #{lexer.pos}"
+		end
+		forste.finval=(expect :integer)
+		expect :do
+		forste.step=parseStatementPart()
+		return forste
 	end
 #----------- expression---------------------------------
 =begin

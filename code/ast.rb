@@ -191,9 +191,9 @@ class ProcedureStatement < Ast
 end
 
 class StructuredStatement < Ast
-	attr_accessor :cmpste, :ifste,:whileste
-	def initialize cmpste=nil, ifste=nil, whileste=nil
-		@cmpte,@ifste,@whileste=cmpste,ifste,whileste
+	attr_accessor :cmpste, :ifste,:whileste, :forste
+	def initialize cmpste=nil, ifste=nil, whileste=nil,  forste=nil
+		@cmpte,@ifste,@whileste, @forste=cmpste,ifste,whileste, forste
 	end
 end
 
@@ -208,6 +208,13 @@ class WhileStatement < Ast
 	attr_accessor :cond, :ste
 	def initialize cond=nil, ste=nil
 		@cond,@ste=cond,ste
+	end
+end
+
+class ForStatement < Ast
+	attr_accessor :var, :inival, :ord, :finval, :step
+	def initialize var=nil, inival=nil, ord=nil, finval=nil, step=nil
+		@var,@inival,@ord,@finval,@step=var,inival,ord,finval,step	
 	end
 end
 
