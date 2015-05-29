@@ -9,7 +9,7 @@ class Compiler
   def initialize h={}
     puts "Pascal compiler".center(40,'=')
     #pp h
-    @parser=Parser.new true
+    @parser=Parser.new false
   end
 
   def compile filename
@@ -17,7 +17,7 @@ class Compiler
     puts "==> compiling #{filename}"
     @ast=@parser.parse(filename)
     #pp ast
-		generate_js
+		#generate_js
     #simpleVisit
     #generate_dot
   end

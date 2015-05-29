@@ -122,6 +122,7 @@ class Parser
 		say "parseBlock"
 		blk=Block.new
 		blk.varDeclp=parseVariableDeclarationPart()
+		#p blk.varDeclp
 		blk.procedureDeclp=parseProcedureDeclarationPart()
 		blk.step=parseStatementPart()
 		return blk
@@ -161,8 +162,9 @@ class Parser
 		varIdVal=VariableDeclarationWithValue.new
 		ident= (expect :ident)
 		varIdVal.ident=ident
-		varIdVal.value=nil
+		varIdVal.val=nil
 		vars.list << varIdVal
+		p varIdVal
 		@varIdentList << ident
 		canBeInitialize=true
 		while showNext.kind==:comma
@@ -170,18 +172,20 @@ class Parser
 			acceptIt
 			ident= (expect :ident)
 			varIdVal.ident=ident
-			varIdVal.value=nil
+			varIdVal.val=nil
 			vars.list << varIdVal
+			p varIdVal
 			@varIdentList << ident
 		end
 		expect :colon
 		vars.type=parseType()
+		p vars.type
 		if canBeInitialize 
 			if showNext.kind==:eq
 			# value need to match the type !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!to do
 				acceptIt
 				value=acceptIt
-				vars.list.first.value=value
+				vars.list.first.val=value
 			end
 		end
 		return vars

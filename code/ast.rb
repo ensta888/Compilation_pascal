@@ -62,9 +62,9 @@ class VariableDeclaration < Ast
 end
 
 class VariableDeclarationWithValue < Ast
-	attr_accessor :ident, :value
-	def initialize ident=nil, value=nil
-		@ident,@value=ident,value
+	attr_accessor :ident, :val
+	def initialize ident=nil, val=nil
+		@ident,@val=ident,val
 	end
 end
 

@@ -61,6 +61,13 @@ class VariableDeclaration < Ast
 	end
 end
 
+class VariableDeclarationWithValue < Ast
+	attr_accessor :ident, :value
+	def initialize ident=nil, value=nil
+		@ident,@value=ident,value
+	end
+end
+
 class Type < Ast
 	attr_accessor :smpType, :arrayType
 	def initialize smpType=nil, arrayType=nil
