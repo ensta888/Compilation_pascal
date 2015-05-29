@@ -265,7 +265,7 @@ class Parser
 	end
 
 =begin
-<procedure declaration> ::= 	procedure <identifier> ; <block> 
+<procedure declaration> ::= 	procedure <identifier> (Variable Declaration) ; <block> 
 =end
 	def parseProcedureDeclaration
 		say "parseProcedureDeclaration"
@@ -274,6 +274,11 @@ class Parser
 		ident= (expect :ident)
 		pcd.ident= ident
 		@procedureIdentList << ident
+		if showNext.kind == :lbracket
+			acceptIt
+			pcd.varD=parseVariableDeclaration()
+			expect :rbracket
+		end
 		expect :semicolon
 		pcd.block= parseBlock()
 		return pcd
