@@ -159,27 +159,24 @@ class Parser
 	def parseVariableDeclaration
 		say "parseVariableDeclaration"
 		vars=VariableDeclaration.new
-		varIdVal=VariableDeclarationWithValue.new
 		ident= (expect :ident)
-		varIdVal.ident=ident
-		varIdVal.val=nil
+		varIdVal=VariableDeclarationWithValue.new(ident,nil)
 		vars.list << varIdVal
-		p varIdVal
+		#p vars.list
 		@varIdentList << ident
 		canBeInitialize=true
 		while showNext.kind==:comma
 			canBeInitialize=false
 			acceptIt
 			ident= (expect :ident)
-			varIdVal.ident=ident
-			varIdVal.val=nil
+			#p ident
+			varIdVal=VariableDeclarationWithValue.new(ident,nil)
 			vars.list << varIdVal
-			p varIdVal
+			#p vars.list
 			@varIdentList << ident
 		end
 		expect :colon
 		vars.type=parseType()
-		p vars.type
 		if canBeInitialize 
 			if showNext.kind==:eq
 			# value need to match the type !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!to do
@@ -188,6 +185,8 @@ class Parser
 				vars.list.first.val=value
 			end
 		end
+		#p vars.list
+		#p "----------------------------------------------------------"
 		return vars
 	end
 

@@ -17,7 +17,7 @@ class Compiler
     puts "==> compiling #{filename}"
     @ast=@parser.parse(filename)
     #pp ast
-		#generate_js
+		generate_js
     #simpleVisit
     #generate_dot
   end
