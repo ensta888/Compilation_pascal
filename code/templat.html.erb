@@ -47,8 +47,7 @@
 			<% if pcd.block.step != nil %>
 				<% pcd.block.step.cpste.list.each do |ste| %>
 					<% if ste.spSte !=nil %>
-						<% if ste.spSte.assignste != nil 
-						%>
+						<% if ste.spSte.assignste != nil %>
 							assign statement
 						<% elsif ste.spSte.procedste != nil %>
 							procedure statement
