@@ -15,7 +15,34 @@
 	<% end %>
 <% end %>
 /*procedure declaration part*/
-<%= @ast.block.procedureDeclp%>
+<% if @ast.block.procedureDeclp != nil%>
+	<% @ast.block.procedureDeclp.list.each do |pcd| %>
+		function <%= pcd.ident.value%> ( 
+			<% if pcd.formalparslist.fpsectionlist !=nil %>
+				<% if pcd.formalparslist.fpsectionlist.size == 1 %>
+						<%= par.value%>
+				<% end %>
+				<% pcd.formalparslist.fpsectionlist.each do |pars| %>
+					<% pars.list.each do |par| %>
+						<% if pars == pcd.formalparslist.fpsectionlist.last and par == pars.list.last %>
+							<%= par.value%>
+						<% else %>
+							<%= par.value%>,
+						<% end %>	
+					<% end %>
+				<% end %>
+			<% end %>
+		)	{
+			<% if pcd.block.varDeclp != nil %>
+				<%= pcd.block.varDeclp %>
+				<% yield :vardecl %>
+			<% end %>
+			<% if pcd.block.step != nil %>
+				<%= pcd.block.step  %>
+			<% end %>
+		}
+	<% end %>
+<% end %>
 /*statement part*/
 <%= @ast.block.step%>
 </script>

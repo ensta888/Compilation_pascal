@@ -36,6 +36,13 @@ class Program < Ast
   end
 end
 
+class VarIdentList < Ast
+	attr_accessor :glb, :pcd, :mainste
+	def initialize glb=[], pcd=[], mainste=[]
+		@glb, @pcd, @mainste=glb,pcd,mainste
+	end
+end
+
 class Block < Ast
 	attr_accessor :varDeclp, :procedureDeclp, :step
 	def initialize varDeclp=nil, procedureDeclp=nil, step=nil
@@ -112,9 +119,23 @@ class ProcedureDeclarationPart < Ast
 end
 
 class ProcedureDeclaration < Ast
-	attr_accessor :ident, :block
-	def initialize ident=nil, block=nil
-		@ident,@block=ident,block
+	attr_accessor :ident, :formalparslist, :block
+	def initialize ident=nil, formalparslist=nil, block=nil
+		@ident,@formalparslist, @block=ident, formalparslist,block
+	end
+end
+
+class FormalParameters < Ast
+	attr_accessor :fpsectionlist
+	def initialize fpsectionlist=[]
+		@fpsectionlist=fpsectionlist
+	end
+end
+
+class FPSection < Ast
+	attr_accessor:list , :type
+	def initialize list=[], typ=nil
+		@list,@type=list,type
 	end
 end
 
@@ -184,9 +205,9 @@ class AssignmentStatement < Ast
 end
 
 class ProcedureStatement < Ast
-	attr_accessor :ident
-	def initialize ident=nil
-		@ident=ident
+	attr_accessor :ident, :fmpars
+	def initialize ident=nil, fmpars=[]
+		@ident,@fmpars=ident,fmpars
 	end
 end
 
@@ -208,6 +229,13 @@ class WhileStatement < Ast
 	attr_accessor :cond, :ste
 	def initialize cond=nil, ste=nil
 		@cond,@ste=cond,ste
+	end
+end
+
+class ForStatement < Ast
+	attr_accessor :var, :inival, :ord, :finval, :step
+	def initialize var=nil, inival=nil, ord=nil, finval=nil, step=nil
+		@var,@inival,@ord,@finval,@step=var,inival,ord,finval,step	
 	end
 end
 

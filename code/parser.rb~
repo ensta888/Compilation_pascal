@@ -64,7 +64,7 @@ class Parser
 
   def initialize verbose=false
     @lexer=Lexer.new(PASCAL_TOKEN_DEF)
-		@varIdentList=[]
+		@varIdentList=VarIdentList.new
 		@procedureIdentList=[]
     @verbose=verbose
   end
@@ -124,7 +124,7 @@ class Parser
 		blk.varDeclp=parseVariableDeclarationPart()
 		#p blk.varDeclp
 		blk.procedureDeclp=parseProcedureDeclarationPart()
-		blk.step=parseStatementPart()
+		blk.step=parseStatementPart("glb")
 		return blk
 	end
 
@@ -163,7 +163,8 @@ class Parser
 		varIdVal=VariableDeclarationWithValue.new(ident,nil)
 		vars.list << varIdVal
 		#p vars.list
-		@varIdentList << ident
+		#@varIdentList << ident
+		@varIdentList.glb << ident
 		canBeInitialize=true
 		while showNext.kind==:comma
 			canBeInitialize=false
@@ -173,8 +174,10 @@ class Parser
 			varIdVal=VariableDeclarationWithValue.new(ident,nil)
 			vars.list << varIdVal
 			#p vars.list
-			@varIdentList << ident
+			#@varIdentList << ident
+			@varIdentList.glb << ident
 		end
+		#@varIdentList.glb= glb
 		expect :colon
 		vars.type=parseType()
 		if canBeInitialize 
@@ -264,7 +267,7 @@ class Parser
 	end
 
 =begin
-<procedure declaration> ::= 	procedure <identifier> (Variable Declaration) ; <block> 
+<procedure declaration> ::= 	procedure <identifier> <FormalParameters> ; <procedure block> 
 =end
 	def parseProcedureDeclaration
 		say "parseProcedureDeclaration"
@@ -273,38 +276,90 @@ class Parser
 		ident= (expect :ident)
 		pcd.ident= ident
 		@procedureIdentList << ident
-		if showNext.kind == :lbracket
-			acceptIt
-			pcd.varD=parseVariableDeclaration()
-			expect :rbracket
-		end
+		pcd.formalparslist=parseFormalParameters()
 		expect :semicolon
-		pcd.block= parseBlock()
+		pcd.block= parseProcedureBlock()
 		return pcd
+	end
+
+	def parseProcedureBlock
+		say "parseProcedureBlock"
+		blk=Block.new
+		blk.varDeclp=parseVariableDeclarationPart()
+		#p blk.varDeclp
+		blk.step=parseStatementPart("pcd")
+		expect :semicolon
+		return blk
+	end
+
+=begin
+<FormalParameters> ::= “(” [<FPSection> ]{“;” <FPSection> }] “)”
+=end
+	def parseFormalParameters
+		say "parseFormalParameters"
+		expect :lbracket
+		fmpars=FormalParameters.new
+		if showNext.kind == :var or showNext.kind ==:ident
+			fmpars.fpsectionlist << parseFPSection()		
+			while showNext.kind == :semicolon
+				acceptIt
+				fmpars.fpsectionlist << parseFPSection()
+			end
+		end
+		expect :rbracket
+		return fmpars
+	end
+
+=begin
+<FPSection> ::= [“VAR”] <identifier > { , <identifier> } : type
+=end
+	def parseFPSection
+		say "parseFPSection"	
+		fps=FPSection.new
+		pcdlocal=[]
+		if showNext.kind == :var or showNext.kind==:ident
+			if showNext.kind== :var
+				acceptIt
+			end
+			ident = expect :ident
+			fps.list << ident
+			@varIdentList.pcd << ident
+			while showNext.kind ==:comma
+				acceptIt
+				ident = expect :ident
+				fps.list << ident
+				@varIdentList.pcd << ident
+			end
+			expect :colon
+			fps.type=parseType()
+			#@varIdentList.pcd=pcdlocal
+		end
+		return fps
 	end
 
 #-----------------statement part---------------------
 =begin
 <statement part> ::= 	<compound statement> 
 =end
-	def parseStatementPart
+	def parseStatementPart(area) 
 		say "parseStatementPart"
 		ste=StatementPart.new
-		ste.cpste=parseCompoundStatement()
+		ste.cpste=parseCompoundStatement(area)
 		return ste
 	end
 
 =begin
 <compound statement> ::= 	begin <statement>;{ <statement> } end
 =end
-	def parseCompoundStatement
+	def parseCompoundStatement(area)
 		say "parseCompoundStatement"
 		expect :begin
 		ste=CompoundStatement.new
-		ste.list << parseStatement()
+		ste.list << parseStatement(area)
+		#p ste.list
 		expect :semicolon
 		while showNext.kind!=:end
-			ste.list << parseStatement()
+			ste.list << parseStatement(area)
 			expect :semicolon
 		end
 		expect :end
@@ -314,14 +369,15 @@ class Parser
 =begin
 <statement> ::= <simple statement> | <structured statement>
 =end
-	def parseStatement
+	def parseStatement(area)
 		say "parseStatement"
 		ste=Statement.new
-		if showNext.kind==:begin or showNext.kind==:if or showNext.kind == :while
-			ste.stSte=parseStructuredStatement()
+		#p showNext.kind
+		if showNext.kind==:begin or showNext.kind==:if or showNext.kind == :while or showNext.kind==:for
+			ste.stSte=parseStructuredStatement(area)
 		else
 			#p showNext.kind
-			ste.spSte=parseSimpleStatement()
+			ste.spSte=parseSimpleStatement(area)
 		end
 		return ste
 	end
@@ -329,25 +385,33 @@ class Parser
 =begin
 <simple statement> ::= 	<assignment statement> | <procedure statement> | <read statement> | <write statement> 
 =end
-	def parseSimpleStatement
+	def parseSimpleStatement(area)
 		say "parseSimpleStatement"
 		spste=SimpleStatement.new
 		#p showNext.kind
 		case showNext.kind
 		when :read then 
-			spste.readste=parseReadStatement()
+			spste.readste=parseReadStatement(area)
 		when :write  then
-			spste.writeste=parseWriteStatement()
+			spste.writeste=parseWriteStatement(area)
 		#assignment and procedurement
 		when :ident then
 			#p "simple statement ident is #{showNext.kind}"
 			#p showNext.value
 			isInVar=false
 			isInPrd=false
-			@varIdentList.each do |varlist|
+			@varIdentList.glb.each do |varlist|
 				if varlist.value ==showNext.value
 					isInVar=true
 					break
+				end
+			end
+			if area=="pcd"
+				@varIdentList.pcd.each do |varlist|
+					if varlist.value ==showNext.value
+						isInVar=true
+						break
+					end
 				end
 			end
 			@procedureIdentList.each do |prdlist|
@@ -358,11 +422,11 @@ class Parser
 			end
 			if isInVar
 				#assignement statement
-				spste.assignste=parseAssignmentStatement()
+				spste.assignste=parseAssignmentStatement(area)
 			else
 				if isInPrd
 					#procedure statement
-					spste.procedste=parseProcedureStatement()
+					spste.procedste=parseProcedureStatement(area)
 				else
 					raise "error : identifier not defined at #{lexer.pos}"
 				end
@@ -372,16 +436,34 @@ class Parser
 		end
 		return spste
 	end
-#--------------------lack of assignement and procedure statement
 
-	def parseProcedureStatement
+	def parseProcedureStatement(area)
 		say "parseProcedureStatement"
 		pcd=ProcedureStatement.new
 		pcd.ident=(expect :ident)
+		isInpcdList=false
+		@procedureIdentList.each do |pcdident|
+			if pcdident.value == pcd.ident.value
+				isInpcdList=true
+				break
+			end		
+		end
+		if isInpcdList==false 
+			raise "error : not define procedure #{pcd.ident} at #{lexer.pos}"
+		end
+		expect :lbracket
+		if showNext.kind ==:ident
+			pcd.fmpars << acceptIt		
+			while showNext.kind ==:comma
+				acceptIt
+				pcd.fmpars << (expect :ident)
+			end
+		end
+		expect :rbracket
 		return pcd
 	end
 
-	def parseAssignmentStatement
+	def parseAssignmentStatement(area)
 		say "parseAssignmentStatement"
 		agnste=AssignmentStatement.new
 		agnste.var=parseVariable()
@@ -393,7 +475,7 @@ class Parser
 =begin
 <read statement> ::= 	read ( <input variable> { , <input variable> } )
 =end
-	def parseReadStatement
+	def parseReadStatement(area)
 		say "parseReadStatement"
 		readste=ReadStatement.new
 		#p showNext.kind
@@ -425,7 +507,7 @@ class Parser
 =begin
 	<write statement>::= write (<output value>{,<output value>})
 =end
-	def parseWriteStatement
+	def parseWriteStatement(area)
 		say "parseWriteStatement"
 		writeste=WriteStatement.new
 		expect :write
@@ -455,18 +537,19 @@ class Parser
 =begin
 <structured statement> ::= 	<compound statement> | <if statement> | <while statement> | <for statement>
 =end
-	def parseStructuredStatement
+	def parseStructuredStatement(area)
 		say "parseStructuredStatement"
 		strSte=StructuredStatement.new
+		#p showNext.kind
 		case showNext.kind
 		when :begin then
-			strSte.cmpste=parseCompoundStatement()
+			strSte.cmpste=parseCompoundStatement(area)
 		when :if then
-			strSte.ifste=parseIfStatement()
+			strSte.ifste=parseIfStatement(area)
 		when :while then
-			strSte.whileste=parseWhileStatement()
+			strSte.whileste=parseWhileStatement(area)
 		when :for then
-			strSte.forste=parseForStatement()
+			strSte.forste=parseForStatement(area)
 		else
 			raise "expecting : identifier number '(' or '~' at #{lexer.pos}"
 		end
@@ -476,15 +559,24 @@ class Parser
 =begin
 <if statement> ::= 	if <expression> then <statement> | if <expression> then <statement> else <statement> 
 =end
-	def parseIfStatement
+	def parseIfStatement(area)
 		say "parseIfStatement"
     ifste=IfStatement.new
+		expect :if
+		#p showNext.kind
 		ifste.cond=parseExpression()
+		#p "ifste condition"
+		#p ifste.cond
+		#p "expect then"
+		#p showNext.kind
 		expect :then
-		ifste.thenste=parseStatement()
+		#p showNext.kind
+		ifste.thenste=parseStatement(area)
+		p "ifste then statement"
+		p ifste.thenste
 		if showNext.kind==:else
 			acceptIt
-			ifste.elseste=parseStatement
+			ifste.elseste=parseStatement(area)
 		end
 		return ifste
 	end
@@ -492,20 +584,20 @@ class Parser
 =begin
 <while statement> ::= 	while <expression> do <statement>
 =end
-	def parseWhileStatement
+	def parseWhileStatement(area)
 		say "parseWhileStatement"
 		whileste=WhileStatement.new
 		expect :while
 		whileste.cond=parseExpression()
 		expect :do
-		whileste.ste=parseStatement()
+		whileste.ste=parseStatement(area)
 		return whileste
 	end
 
 =begin
 for < variable > ::= < initial_value > to [down to] < final_value > do <statement part>;
 =end
-	def parseForStatement
+	def parseForStatement(area)
 		say "parseForStatement"
 		forste=ForStatement.new
 		expect :for
@@ -526,7 +618,7 @@ for < variable > ::= < initial_value > to [down to] < final_value > do <statemen
 		end
 		forste.finval=(expect :integer)
 		expect :do
-		forste.step=parseStatementPart()
+		forste.step=parseStatementPart(area)
 		return forste
 	end
 #----------- expression---------------------------------
@@ -537,6 +629,7 @@ for < variable > ::= < initial_value > to [down to] < final_value > do <statemen
 		say "parseExpression"
 		exp=Expression.new
 		exp.lsmpexp=parseSimpleExpression()
+		p showNext.kind
 		reOp=[:eq, :noteq, :inf, :infeq, :supeq, :sup]
 		if reOp.include? showNext.kind
 			exp.reop=acceptIt
@@ -587,7 +680,7 @@ for < variable > ::= < initial_value > to [down to] < final_value > do <statemen
 	def parseFactor
 		say "parseFactor"
 		fact=Factor.new
-		#p showNext.kind
+		p showNext.kind
 		case showNext.kind
 		when :not then
 			acceptIt

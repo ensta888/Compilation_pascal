@@ -1,5 +1,4 @@
 require 'pp'
-
 require_relative 'parser'
 require_relative 'visitor'
 require_relative 'dot_generator'
@@ -24,7 +23,7 @@ class Compiler
   
 	def generate_js
 		#p @ast
-		string=IO.read "templat.txt"
+		string=IO.read "templat.html.erb"
 		engine = ERB.new(string)
 		generated_code= engine.result(binding)
 		puts generated_code

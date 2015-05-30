@@ -34,8 +34,15 @@
 			<% end %>
 		)	{
 			<% if pcd.block.varDeclp != nil %>
-				<%= pcd.block.varDeclp %>
-				<% yield :vardecl %>
+				<% pcd.block.varDeclp.declList.each do |vardecl| %>
+					<% vardecl.list.each do |vardeclwithval| %> 
+						<% if vardeclwithval.val !=nil %>
+						var <%= vardeclwithval.ident.value %> = <%= vardeclwithval.val.value %>;
+						<% else %>
+							var <%= vardeclwithval.ident.value %>;
+						<% end %>
+					<% end %>
+				<% end %>
 			<% end %>
 			<% if pcd.block.step != nil %>
 				<%= pcd.block.step  %>
