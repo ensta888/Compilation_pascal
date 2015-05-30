@@ -1,6 +1,6 @@
 
-testPascal:	testPascal.pas
-	fpc testPascal.pas
+pascal_ex:	pascal_ex.pas
+	fpc pascal_ex.pas
 
 clearn:	
-	rm *.o testPascal
+	rm *.o pascal_ex

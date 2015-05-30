@@ -1,6 +1,6 @@
 
-vardeclaration:	vardeclaration.pas
-	fpc vardeclaration.pas
+exProcedure:	exProcedure.pas
+	fpc exProcedure.pas
 
 clearn:	
-	rm *.o vardeclaration
+	rm *.o exProcedure
