@@ -527,6 +527,7 @@ for < variable > ::= < initial_value > to [down to] < final_value > do <statemen
 		forste.finval=(expect :integer)
 		expect :do
 		forste.step=parseStatementPart()
+		return forste
 	end
 #----------- expression---------------------------------
 =begin

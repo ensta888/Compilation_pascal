@@ -264,7 +264,7 @@ class Parser
 	end
 
 =begin
-<procedure declaration> ::= 	procedure <identifier> (Variable Declaration) ; <block> 
+<procedure declaration> ::= 	procedure <identifier> <FormalParameters> ; <procedure block> 
 =end
 	def parseProcedureDeclaration
 		say "parseProcedureDeclaration"
