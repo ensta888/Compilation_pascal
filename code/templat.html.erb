@@ -45,7 +45,30 @@
 				<% end %>
 			<% end %>
 			<% if pcd.block.step != nil %>
-				<%= pcd.block.step  %>
+				<% pcd.block.step.cpste.list.each do |ste| %>
+					<% if ste.spSte !=nil %>
+						<% if ste.spSte.assignste != nil 
+						%>
+							assign statement
+						<% elsif ste.spSte.procedste != nil %>
+							procedure statement
+						<% elsif ste.spSte.readste != nil %>
+							read statement
+						<% elsif ste.spSte.writeste != nil %>
+							write statement
+						<% end %>
+					<% else %>
+						<% if ste.stSte.cmpste != nil%>
+							compound statement
+						<% elsif ste.stSte.ifste != nil %>
+							if statement
+						<% elsif ste.stSte.whileste != nil %>
+							while statement
+						<% elsif ste.stSte.forste != nil %>
+							for statement
+						<% end %>
+					<% end %>
+				<% end%>
 			<% end %>
 		}
 	<% end %>
