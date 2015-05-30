@@ -47,11 +47,10 @@
 			<% if pcd.block.step != nil %>
 				<% pcd.block.step.cpste.list.each do |ste| %>
 					<% if ste.spSte !=nil %>
-						<% if ste.spSte.assignste != nil 
-						%>
-							assign statement
+						<% if ste.spSte.assignste != nil %>
+							<%= ste.spSte.assignste.var %> = <%= ste.spSte.assignste.exp %> ;
 						<% elsif ste.spSte.procedste != nil %>
-							procedure statement
+							<%= ste.spSte.procedste.ident %> (<%= ste.spSte.procedste.fmpars %> )
 						<% elsif ste.spSte.readste != nil %>
 							read statement
 						<% elsif ste.spSte.writeste != nil %>
