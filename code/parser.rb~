@@ -529,7 +529,7 @@ class Parser
 	def parseOutputValue
 		say "parseOutputValue"
 		out=OutputValue.new
-		out.exp=parseExpression()
+		out.expn=parseExpression()
 		return out
 	end
 

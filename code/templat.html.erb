@@ -33,6 +33,7 @@
 				<% end %>
 			<% end %>
 		)	{
+			/*procedure part*/
 			<% if pcd.block.varDeclp != nil %>
 				<% pcd.block.varDeclp.declList.each do |vardecl| %>
 					<% vardecl.list.each do |vardeclwithval| %> 
@@ -48,20 +49,78 @@
 				<% pcd.block.step.cpste.list.each do |ste| %>
 					<% if ste.spSte !=nil %>
 						<% if ste.spSte.assignste != nil %>
-							assign statement
+						/*assign statement*/
+							<%= ste.spSte.assignste.var %> = <%= ste.spSte.assignste.exp %> ;
 						<% elsif ste.spSte.procedste != nil %>
-							procedure statement
+						/*procedure statement*/
+							<%= ste.spSte.procedste.ident %> (<%= ste.spSte.procedste.fmpars %> )
 						<% elsif ste.spSte.readste != nil %>
-							read statement
+						/*read statement*/
+							<% readste.varlist.each do |input| %>
+								/*normal variable*/
+								<% if input.var.expn !=nil %>
+									<%= input.var.ident %> = prompt ("Please input a vlaue", "example");
+								<% else %>
+								/*indexed variable*/
+									<%= input.var.ident %>[<%= input.expn %>]= prompt ("Please input a vlaue", "example");
+								<% end %>
+							<% end %>
 						<% elsif ste.spSte.writeste != nil %>
-							write statement
+						/*write statement to do*/ 
+							document.write(
+							<% ste.spSte.writeste.outputlist.each do |output| %>
+								<%= output.expn %>
+							<% end %>
+							)
 						<% end %>
 					<% else %>
 						<% if ste.stSte.cmpste != nil%>
 							compound statement
 						<% elsif ste.stSte.ifste != nil %>
-							if statement
+						/* if statement */
+						/*condition = expression*/
+							if ( <%= ste.stSte.ifste.cond.lsmpexp.sign %> 
+								<% if ste.stSte.ifste.cond.lsmpexp.termlist.size ==1 %>
+									<% term=ste.stSte.ifste.cond.lsmpexp.termlist.first %>
+									<% if term.factlist.size ==1 %>
+										<% factor = term.factlist.first %>
+										<% if factor.var != nil %>
+											/*normal variable*/
+											<% if factor.var.expn == nil %>
+												<%= factor.var.ident.value %> 
+											<% else %>
+											/*indexed variable*/
+												<%= factor.var.ident.value %>[<%= factor.expn %>]
+											<% end %>
+										<% elsif factor.intconst != nil %>
+											int const
+										<% elsif factor.stringconst != nil %>
+											string const
+										<% elsif factor.expn != nil %>
+											expression
+										<% elsif factor.notfact != nil %>
+											not factor
+										<% end %>
+									<% else %>
+										<% for i in 0..(term.factlist.size-2) %>
+											<%= term.factlist[i] %> <%= term.multiplyingoplist[i] %> <%= term.factlist[i+1] %>
+										<% end %>
+									<% end %>
+								<% else %> 
+									<% for i in 0..(ste.stSte.ifste.cond.lsmpexp.termlist.size-2)  %>
+										<%= ste.stSte.ifste.cond.lsmpexp.termlist[i] %> <%= ste.stSte.ifste.cond.lsmpexp.addingoplist[i] %> = ste.stSte.ifste.cond.lsmpexp.termlist[i+1] %>
+									<% end %>
+								<% end %>
+								<%= ste.stSte.ifste.cond.reop.value %>
+								<%= ste.stSte.ifste.cond.rsmpexp %> ) {
+								<%= ste.stSte.ifste.thenste %>
+							}
+							<% if ste.stSte.ifste.elseste != nil%>else{
+								<%= ste.stSte.ifste.elseste %>
+							}
+							<% end %>
 						<% elsif ste.stSte.whileste != nil %>
+							/* while statement */
 							while statement
 						<% elsif ste.stSte.forste != nil %>
 							for statement

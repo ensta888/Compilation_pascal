@@ -191,16 +191,16 @@ class WriteStatement < Ast
 end
 
 class OutputValue < Ast
-	attr_accessor :exp
-	def initialize exp =nil
-		@exp = exp
+	attr_accessor :expn
+	def initialize expn =nil
+		@expn = expn
 	end
 end
 
 class AssignmentStatement < Ast
-	attr_accessor :var,:exp
-	def initialize var=nil, exp=nil
-		@var,@exp=var,exp
+	attr_accessor :var,:expn
+	def initialize var=nil, expn=nil
+		@var,@expn=var,expn
 	end
 end
 
@@ -261,16 +261,16 @@ class Term < Ast
 end
 
 class Factor < Ast
-	attr_accessor :var, :intconst, :stringconst, :exp, :notfact
-	def initialize var=nil, intconst=nil, stringconst=[],exp=nil, notfact=nil
-		@var,@intconst,@stringconst,@exp,@notfact=var,intconst,stringconst,exp,notfact
+	attr_accessor :var, :intconst, :stringconst, :expn, :notfact
+	def initialize var=nil, intconst=nil, stringconst=[],expn=nil, notfact=nil
+		@var,@intconst,@stringconst,@expn,@notfact=var,intconst,stringconst,expn,notfact
 	end
 end
 
 class Variable < Ast
-	attr_accessor :ident, :exp
-	def initialize ident=nil, exp=nil
-		@ident, @exp=ident,exp
+	attr_accessor :ident, :expn
+	def initialize ident=nil, expn=nil
+		@ident, @expn=ident,expn
 	end
 end
 #---------------------------divide line -----------------
