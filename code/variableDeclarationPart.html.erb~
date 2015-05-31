@@ -1,0 +1,9 @@
+	<% @ast.block.varDeclp.declList.each do |vardecl| %>
+		<% vardecl.list.each do |vardeclwithval| %> 
+			<% if vardeclwithval.val !=nil %>
+				hello
+			<% else %>
+				fuck
+			<% end %>
+		<% end %>
+	<% end %>

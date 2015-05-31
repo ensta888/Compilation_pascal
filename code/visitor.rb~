@@ -155,7 +155,7 @@ class Visitor
   def visitProcedureStatement(pcd,args=nil)
 		code =[]
 		code << pcd.ident.value
-		code << visitFormalParameters(pcd.fmpars)
+		code << visitFormalParameters(pcd.fmparslist)
 		return code
   end
   

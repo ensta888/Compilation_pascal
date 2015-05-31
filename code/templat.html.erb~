@@ -1,9 +1,15 @@
 <html>
 <body>
 <script type="text/javascript">
+
+
+
 <%= @ast.ident%>
 /*var declaration part*/
 <% if @ast.block.varDeclp != nil %>
+	<%= @visitor.visitVariableDeclarationPart(@ast.block.varDeclp)%>
+
+	/*
 	<% @ast.block.varDeclp.declList.each do |vardecl| %>
 		<% vardecl.list.each do |vardeclwithval| %> 
 			<% if vardeclwithval.val !=nil %>
@@ -13,7 +19,9 @@
 			<% end %>
 		<% end %>
 	<% end %>
+	*/
 <% end %>
+
 /*procedure declaration part*/
 <% if @ast.block.procedureDeclp != nil%>
 	<% @ast.block.procedureDeclp.list.each do |pcd| %>
@@ -49,13 +57,13 @@
 				<% pcd.block.step.cpste.list.each do |ste| %>
 					<% if ste.spSte !=nil %>
 						<% if ste.spSte.assignste != nil %>
-						/*assign statement*/
+							/*assign statement*/
 							<%= ste.spSte.assignste.var %> = <%= ste.spSte.assignste.exp %> ;
 						<% elsif ste.spSte.procedste != nil %>
-						/*procedure statement*/
+							/*procedure statement*/
 							<%= ste.spSte.procedste.ident %> (<%= ste.spSte.procedste.fmpars %> )
 						<% elsif ste.spSte.readste != nil %>
-						/*read statement*/
+							/*read statement*/
 							<% readste.varlist.each do |input| %>
 								/*normal variable*/
 								<% if input.var.expn !=nil %>
@@ -96,10 +104,13 @@
 											/*int const*/
 											<%= factor.intconst.value %>
 										<% elsif factor.stringconst != nil %>
-											string const
+											/*string const*/
+											<%= factor.intconst.value %>
 										<% elsif factor.expn != nil %>
+											/* expression */
 											expression
 										<% elsif factor.notfact != nil %>
+											/*not factor*/
 											not factor
 										<% end %>
 									<% else %>
@@ -114,7 +125,8 @@
 								<% end %>
 								<%= ste.stSte.ifste.cond.reop.value %>
 								<%= ste.stSte.ifste.cond.rsmpexp %> ) {
-								<%= ste.stSte.ifste.thenste %>
+								<% thenste=ste.stSte.ifste.thenste %>
+								
 							}
 							<% if ste.stSte.ifste.elseste != nil%>else{
 								<%= ste.stSte.ifste.elseste %>
@@ -134,6 +146,7 @@
 <% end %>
 /*statement part*/
 <%= @ast.block.step%>
+
 </script>
 </body>
 </html>

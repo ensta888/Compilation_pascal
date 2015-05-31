@@ -468,7 +468,7 @@ class Parser
 		agnste=AssignmentStatement.new
 		agnste.var=parseVariable()
 		expect :assign
-		agnste.exp=parseExpression()
+		agnste.expn=parseExpression()
 		return agnste
 	end
 
@@ -572,8 +572,8 @@ class Parser
 		expect :then
 		#p showNext.kind
 		ifste.thenste=parseStatement(area)
-		p "ifste then statement"
-		p ifste.thenste
+		#p "ifste then statement"
+		#p ifste.thenste
 		if showNext.kind==:else
 			acceptIt
 			ifste.elseste=parseStatement(area)
@@ -627,15 +627,15 @@ for < variable > ::= < initial_value > to [down to] < final_value > do <statemen
 =end
 	def parseExpression
 		say "parseExpression"
-		exp=Expression.new
-		exp.lsmpexp=parseSimpleExpression()
+		expn=Expression.new
+		expn.lsmpexp=parseSimpleExpression()
 		p showNext.kind
 		reOp=[:eq, :noteq, :inf, :infeq, :supeq, :sup]
 		if reOp.include? showNext.kind
-			exp.reop=acceptIt
-			exp.rsmpexp=parseSimpleExpression()
+			expn.reop=acceptIt
+			expn.rsmpexp=parseSimpleExpression()
 		end
-		return exp
+		return expn
 	end
 
 =begin
@@ -687,7 +687,7 @@ for < variable > ::= < initial_value > to [down to] < final_value > do <statemen
 			fact.notfact=parseFactor()
 		when :lbracket then
 			acceptIt
-			fact.exp=parseExpression()
+			fact.expn=parseExpression()
 			expect :rbracket
 		#const
 		#integer const
@@ -715,7 +715,7 @@ for < variable > ::= < initial_value > to [down to] < final_value > do <statemen
 		var.ident=expect :ident
 		if showNext.kind==:lsbracket
 			acceptIt
-			var.exp=parseExpression()
+			var.expn=parseExpression()
 			expect :rsbracket
 		end
 		return var

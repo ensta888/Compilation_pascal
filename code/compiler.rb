@@ -16,14 +16,19 @@ class Compiler
     puts "==> compiling #{filename}"
     @ast=@parser.parse(filename)
     #pp ast
-		generate_js
+		@visitor=Visitor.new
+
+		#generate_js
+		code=@visitor.doIt(@ast)
+		puts code
+    
     #simpleVisit
     #generate_dot
   end
   
 	def generate_js
 		#p @ast
-		string=IO.read "templat.html.erb"
+		string=IO.read "test.html.erb"
 		engine = ERB.new(string)
 		generated_code= engine.result(binding)
 		puts generated_code

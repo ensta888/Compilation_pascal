@@ -1,0 +1,6 @@
+( <% fmpars.fpsectionlist.each do |fps|%>
+		<% fps.list.each do |par| %>
+			<%= par.value%>
+		<% end %>
+	<% end %>
+)

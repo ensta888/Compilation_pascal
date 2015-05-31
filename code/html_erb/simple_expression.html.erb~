@@ -1,0 +1,5 @@
+<% if expn.reop != nil%>
+	<%= expn.lsmpexp %> <% expn.reop %> <% expn.rsmpexp %>
+<% else %>
+	<%= simple expression%>
+<% end %>

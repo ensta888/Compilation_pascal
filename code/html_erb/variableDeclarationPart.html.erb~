@@ -1,0 +1,15 @@
+/*var declaration part*/
+
+	<% @ast.block.varDeclp.declList.each do |vardecl| %>
+		<% vardecl.list.each do |vardeclwithval| %> 
+			<% if vardeclwithval.val !=nil %>
+			var <%= vardeclwithval.ident.value %> = <%= vardeclwithval.val.value %>;
+			<% else %>
+				var <%= vardeclwithval.ident.value %>;
+			<% end %>
+		<% end %>
+	<% end %>
+	
+
+
+

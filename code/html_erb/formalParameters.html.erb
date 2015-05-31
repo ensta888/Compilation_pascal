@@ -1,0 +1,10 @@
+( <% fmpars.fpsectionlist.each do |fps|%>
+		<% fps.list.each do |par| %>
+			<% if par == fps.list.last %>
+				<%= par.value%>
+			<% else %>
+				<%= par.value%> ,
+			<% end %>
+		<% end %>
+	<% end %>
+)
