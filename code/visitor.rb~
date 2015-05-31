@@ -150,19 +150,20 @@ class Visitor
 #----------------procedure statement---------------------------------
   def visitProcedureStatement(pcd,args=nil)
 		code =[]
-		code << pcd.ident.value
-		code << "("
+		code1 = pcd.ident.value+"("
+		code << code1
 		if pcd.pars != nil
 			pcd.pars.each do |par|
 				if par == pcd.pars.last
 					code << visitExpression(par)
 				else
 					code << visitExpression(par)
-					code << ','.chomp
+					code << ','
 				end
 			end
 		end
 		code << ")"
+		p code
 		return code
   end
   
@@ -216,12 +217,13 @@ class Visitor
   def visitSimpleExpression(smexp)
 		code = []
 		if smexp.sign!=nil
-			code << smexp.sign
+			code = smexp.sign
 		end
 		#p "In simple Expression"
 		#p smexp
 		if smexp.termlist != nil
-			code << visitTerm(smexp.termlist.first)
+			code1 = visitTerm(smexp.termlist.first)
+			code << code1
 			if smexp.termlist.size > 1
 				for i in 1..(smexp.termlist.size-2)
 					code << smexp.addingoplist[i].value
@@ -234,16 +236,16 @@ class Visitor
   end
   
   def visitTerm(term)
-  	code = []
+  	code = ""
   	#p "in Term"
   	#p term
   	#p term.factlist
   	if term.factlist !=nil
-  		code << visitFactor(term.factlist.first)
+  		code = visitFactor(term.factlist.first)
   		if term.factlist.size > 1
   			for i in 1..(term.factlist.size-2)
-					code << term.multiplyingoplist[i].value
-					code << visitFactr(term.factlist[i])
+					code += term.multiplyingoplist[i].value
+					code += visitFactor(term.factlist[i])
 				end
   		end
   	end
@@ -253,22 +255,16 @@ class Visitor
   end
   
   def visitFactor(fact)
-		code =[]
 		if fact.var != nil
-			code << visitVariable(fact.var)
-		end
-		if fact.intconst != nil
-			code << fact.intconst.value
-		end
-		if fact.stringconst != nil
-			code << fact.stringconst
-		end
-		if fact.expn != nil
-			code << visitExpression(fact.expn)
-		end
-		if fact.notfact != nil
-			code << "!"
-			code << visitFactor(fact.notfact)
+			code = visitVariable(fact.var)
+		elsif fact.intconst != nil
+			code = fact.intconst.value
+		elsif fact.stringconst != nil
+			code = fact.stringconst
+		elsif fact.expn != nil
+			code = visitExpression(fact.expn)
+		elsif fact.notfact != nil
+			code = "!"+visitFactor(fact.notfact) 
 		end
 		#p "in factor"
 		#p code
@@ -279,19 +275,22 @@ class Visitor
   def visitReadStatement(readste,args=nil)
   	code =[]
   	readste.varlist.each do |var|
-  		code << visitVariable(var.var)
+  		code1 = visitVariable(var.var)
   		string=IO.read "html_erb/readStatement.html.erb"
 			engine = ERB.new(string)
-			code << engine.result(binding)
+			code2 = engine.result(binding)
+			code << code1+code2
   	end
   	return code
   end
 #---------------------writeStatement--------------------------------
   def visitWriteStatement(writeste,args=nil)
-  	code =[]
+ 		code =[]
   	writeste.outputlist.each do |output|
   		code << "document.write( "
-  		code << visitExpression(output.expn)	
+  		expn=visitExpression(output.expn)	
+  		code << expn
+  		puts expn
   		code << ")"
   	end
   	return code

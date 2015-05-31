@@ -6,11 +6,11 @@ require_relative 'dot_generator'
 
 class Compiler
 
-	attr_accessor :ast
   def initialize h={}
     puts "Oberon-0 compiler".center(40,'=')
     #pp h
     @parser=Parser.new
+    @ast=nil
   end
 
   def compile filename
