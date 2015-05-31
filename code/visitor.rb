@@ -38,7 +38,7 @@ class Visitor
 		if ast.block.procedureDeclp !=nil
 			@prg << visitProcedureDeclarationPart(ast.block.procedureDeclp)
 		end
-		@code << visitStatementPart(ast.block.step)
+		@prg << visitStatementPart(ast.block.step)
 		return generated_code
   end
 
@@ -155,7 +155,18 @@ class Visitor
   def visitProcedureStatement(pcd,args=nil)
 		code =[]
 		code << pcd.ident.value
-		code << visitFormalParameters(pcd.fmpars)
+		code << "("
+		if pcd.pars != nil
+			pcd.pars.each do |par|
+				if par == pcd.pars.last
+					code << visitExpression(par)
+				else
+					code << visitExpression(par)
+					code << ","
+				end
+			end
+		end
+		code << ")"
 		return code
   end
   

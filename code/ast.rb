@@ -205,9 +205,9 @@ class AssignmentStatement < Ast
 end
 
 class ProcedureStatement < Ast
-	attr_accessor :ident, :fmpars
-	def initialize ident=nil, fmpars=[]
-		@ident,@fmpars=ident,fmpars
+	attr_accessor :ident, :pars
+	def initialize ident=nil, pars=[]
+		@ident,@pars=ident,pars
 	end
 end
 

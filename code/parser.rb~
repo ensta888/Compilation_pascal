@@ -453,10 +453,10 @@ class Parser
 		end
 		expect :lbracket
 		if showNext.kind ==:ident
-			pcd.fmpars << acceptIt		
+			pcd.factpars << parseExpression()	
 			while showNext.kind ==:comma
 				acceptIt
-				pcd.fmpars << (expect :ident)
+				pcd.factpars << parseExpression()
 			end
 		end
 		expect :rbracket

@@ -155,7 +155,18 @@ class Visitor
   def visitProcedureStatement(pcd,args=nil)
 		code =[]
 		code << pcd.ident.value
-		code << visitFormalParameters(pcd.fmparslist)
+		code << "("
+		if pcd.pars != nil
+			pcd.pars.each do |par|
+				if par == pcd.pars.last
+					code << visitExpression(par)
+				else
+					code << visitExpression(par)
+					code << ","
+				end
+			end
+		end
+		code << ")"
 		return code
   end
   
