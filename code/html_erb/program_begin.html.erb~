@@ -1,3 +1,6 @@
 <html>
 <body>
 <script type="text/javascript">
+<%= @ast.ident%>
+
+

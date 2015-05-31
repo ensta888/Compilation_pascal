@@ -1,17 +1,3 @@
-/*procedure declaration part*/
-function <%= pcd.ident.value %> ( 
-	<% if pcd.formalparslist.fpsectionlist !=nil %>
-		<% if pcd.formalparslist.fpsectionlist.size == 1 %>
-				<%= par.value%>
-		<% end %>
-		<% pcd.formalparslist.fpsectionlist.each do |pars| %>
-			<% pars.list.each do |par| %>
-				<% if pars == pcd.formalparslist.fpsectionlist.last and par == pars.list.last %>
-					<%= par.value%>
-				<% else %>
-					<%= par.value%>,
-				<% end %>	
-			<% end %>
-		<% end %>
-	<% end %>)
-
+  
+  /*procedure declaration part*/
+function <%= pcd.ident.value %> (<% if pcd.formalparslist.fpsectionlist !=nil %><% if pcd.formalparslist.fpsectionlist.size == 1 %><%= par.value%><% end %><% pcd.formalparslist.fpsectionlist.each do |pars| %><% pars.list.each do |par| %><% if pars == pcd.formalparslist.fpsectionlist.last and par == pars.list.last %><%= par.value%><% else %><%= par.value%>,<% end %><% end %><% end %><% end %>)

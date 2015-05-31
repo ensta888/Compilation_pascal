@@ -83,9 +83,7 @@ class Visitor
 
   def visitBlockBegin(blk,args=nil)
 		code =[]
-		string=IO.read "html_erb/block_begin.html.erb"
-		engine = ERB.new(string)
-		code << engine.result(binding)
+		code << "{"
 		if blk.varDeclp !=nil
 			code << visitVariableDeclarationPart(blk.varDeclp)
 		end
@@ -100,9 +98,7 @@ class Visitor
   
   def visitBlockEnd(blk,args=nil)
 		code =[]
-		string=IO.read "html_erb/block_end.html.erb"
-		engine = ERB.new(string)
-		code= engine.result(binding)
+		code << "}"
 		return code
   end
 #---------------------------------------------------------------------  
@@ -162,7 +158,7 @@ class Visitor
 					code << visitExpression(par)
 				else
 					code << visitExpression(par)
-					code << ","
+					code << ','.chomp
 				end
 			end
 		end
@@ -188,19 +184,29 @@ class Visitor
   end
   
   def visitVariable(var,args=nil)
-		code =[]
-		string=IO.read "html_erb/entire_variable.html.erb"
-		engine = ERB.new(string)
-		code << engine.result(binding)
+		#string=IO.read "html_erb/entire_variable.html.erb"
+		#engine = ERB.new(string)
+		#code =engine.result(binding)
+		#code =code.chomp
+		code= var.ident.value
+		#puts code.chomp
 		return code
   end
   
   def visitExpression(expn,args=nil)
 		code =[]
+		#p expn.reop
+		#p "in Expression"
 		if expn.reop != nil
-			code << visitSimpleExpression(expn.lsmpexp)
-			code << expn.reop.value
-			code << visitSimpleExpression(expn.rsmpexp)
+			code1 = visitSimpleExpression(expn.lsmpexp)
+			code << code1
+			#p code1
+			code2 = expn.reop.value
+			code << code2
+			#p code2
+			code3 = visitSimpleExpression(expn.rsmpexp)
+			#p code3
+			code << code3
 		else
 			code << visitSimpleExpression(expn.lsmpexp)
 		end
@@ -212,6 +218,8 @@ class Visitor
 		if smexp.sign!=nil
 			code << smexp.sign
 		end
+		#p "In simple Expression"
+		#p smexp
 		if smexp.termlist != nil
 			code << visitTerm(smexp.termlist.first)
 			if smexp.termlist.size > 1
@@ -221,11 +229,15 @@ class Visitor
 				end
 			end
 		end
+		#p code
 		return code
   end
   
   def visitTerm(term)
   	code = []
+  	#p "in Term"
+  	#p term
+  	#p term.factlist
   	if term.factlist !=nil
   		code << visitFactor(term.factlist.first)
   		if term.factlist.size > 1
@@ -235,13 +247,15 @@ class Visitor
 				end
   		end
   	end
+  	#p code
+  	#p "-------------------------------------"
   	return code
   end
   
   def visitFactor(fact)
 		code =[]
 		if fact.var != nil
-			visitVariable(fact.var)
+			code << visitVariable(fact.var)
 		end
 		if fact.intconst != nil
 			code << fact.intconst.value
@@ -256,6 +270,9 @@ class Visitor
 			code << "!"
 			code << visitFactor(fact.notfact)
 		end
+		#p "in factor"
+		#p code
+		return code
   end
 
 #---------------read statement-------------------------------
@@ -303,7 +320,10 @@ class Visitor
   def visitIfStatement(ste,args=nil)
 		code =[]
 		code << "if ( "
-		code << visitExpression(ste.cond)
+		expcode= visitExpression(ste.cond)
+		#p ste.cond.lsmpexp
+		#p expcode
+		code << expcode
 		code << ")"
 		code << visitStatement(ste.thenste)
 		if ste.elseste != nil

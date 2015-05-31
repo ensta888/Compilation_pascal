@@ -629,7 +629,7 @@ for < variable > ::= < initial_value > to [down to] < final_value > do <statemen
 		say "parseExpression"
 		expn=Expression.new
 		expn.lsmpexp=parseSimpleExpression()
-		p showNext.kind
+		#p showNext.kind
 		reOp=[:eq, :noteq, :inf, :infeq, :supeq, :sup]
 		if reOp.include? showNext.kind
 			expn.reop=acceptIt
@@ -680,7 +680,7 @@ for < variable > ::= < initial_value > to [down to] < final_value > do <statemen
 	def parseFactor
 		say "parseFactor"
 		fact=Factor.new
-		p showNext.kind
+		#p showNext.kind
 		case showNext.kind
 		when :not then
 			acceptIt

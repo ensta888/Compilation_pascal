@@ -453,10 +453,10 @@ class Parser
 		end
 		expect :lbracket
 		if showNext.kind ==:ident
-			pcd.factpars << parseExpression()	
+			pcd.pars << parseExpression()	
 			while showNext.kind ==:comma
 				acceptIt
-				pcd.factpars << parseExpression()
+				pcd.pars << parseExpression()
 			end
 		end
 		expect :rbracket
@@ -629,7 +629,7 @@ for < variable > ::= < initial_value > to [down to] < final_value > do <statemen
 		say "parseExpression"
 		expn=Expression.new
 		expn.lsmpexp=parseSimpleExpression()
-		p showNext.kind
+		#p showNext.kind
 		reOp=[:eq, :noteq, :inf, :infeq, :supeq, :sup]
 		if reOp.include? showNext.kind
 			expn.reop=acceptIt
