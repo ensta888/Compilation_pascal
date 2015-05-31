@@ -78,6 +78,7 @@
 							compound statement
 						<% elsif ste.stSte.ifste != nil %>
 						/* if statement */
+						/*condition = expression*/
 							if ( <%= ste.stSte.ifste.cond.lsmpexp.sign %> 
 								<% if ste.stSte.ifste.cond.lsmpexp.termlist.size ==1 %>
 									<% term=ste.stSte.ifste.cond.lsmpexp.termlist.first %>
@@ -92,7 +93,8 @@
 												<%= factor.var.ident.value %>[<%= factor.expn %>]
 											<% end %>
 										<% elsif factor.intconst != nil %>
-											int const
+											/*int const*/
+											<%= factor.intconst.value %>
 										<% elsif factor.stringconst != nil %>
 											string const
 										<% elsif factor.expn != nil %>

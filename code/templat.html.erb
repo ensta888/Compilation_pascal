@@ -93,9 +93,11 @@
 												<%= factor.var.ident.value %>[<%= factor.expn %>]
 											<% end %>
 										<% elsif factor.intconst != nil %>
-											int const
+											/*int const*/
+											<%= factor.intconst.value %>
 										<% elsif factor.stringconst != nil %>
-											string const
+											/*string const*/
+											<%= factor.intconst.value %>
 										<% elsif factor.expn != nil %>
 											expression
 										<% elsif factor.notfact != nil %>
