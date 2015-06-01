@@ -160,8 +160,9 @@ class Visitor
 			end
 		end
 		code << ")"
+		g_code=code.flatten.join
 		#p code
-		return code
+		return g_code
   end
   
   def visitFormalParameters(fmpars,args=nil)
@@ -199,13 +200,16 @@ class Visitor
 		if expn.reop != nil
 			code1 = visitSimpleExpression(expn.lsmpexp)
 			code << code1
+			code << " "
 			#p code1
 			code2 = expn.reop.value
 			code << code2
+			code << " "
 			#p code2
 			code3 = visitSimpleExpression(expn.rsmpexp)
 			#p code3
 			code << code3
+			code << " "
 		else
 			code << visitSimpleExpression(expn.lsmpexp)
 		end
@@ -293,14 +297,17 @@ class Visitor
 #---------------------writeStatement--------------------------------
   def visitWriteStatement(writeste,args=nil)
  		code =[]
+		onecode=[]
   	writeste.outputlist.each do |output|
-  		code << "document.write( "
+  		onecode << "document.write( "
   		expn=visitExpression(output.expn)	
-  		code << expn
-  		puts expn
-  		code << ")"
+  		onecode << expn
+  		#puts expn
+  		onecode << " )"
+			code << onecode.flatten.join
 			code << "document.write(\"<br>\")"
   	end
+
   	return code
   end
   
@@ -323,17 +330,20 @@ class Visitor
 #-----------:cond, :thenste, :elseste-----if statement-------------------------------
   def visitIfStatement(ste,args=nil)
 		code =[]
-		code << "if ( "
-		expcode= visitExpression(ste.cond)
+		expcode=[]
+		expcode << "if ( "
+		expcode << visitExpression(ste.cond)
 		#p ste.cond.lsmpexp
 		#p expcode
+		expcode << ")"
+		expcode=expcode.flatten.join
 		code << expcode
-		code << ")"
 		code << visitStatement(ste.thenste)
 		if ste.elseste != nil
 			code << "else "
 			code << visitStatement(ste.elseste)
 		end
+		
 		return code
   end
   

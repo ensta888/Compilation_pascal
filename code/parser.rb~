@@ -388,7 +388,8 @@ class Parser
 	def parseSimpleStatement(area)
 		say "parseSimpleStatement"
 		spste=SimpleStatement.new
-		#p showNext.kind
+		p "in simple statement line 391"
+		p showNext.kind
 		case showNext.kind
 		when :read then 
 			spste.readste=parseReadStatement(area)
@@ -561,6 +562,7 @@ class Parser
 =end
 	def parseIfStatement(area)
 		say "parseIfStatement"
+		p "enter in  if statement"
     ifste=IfStatement.new
 		expect :if
 		#p showNext.kind
@@ -573,9 +575,13 @@ class Parser
 		#p showNext.kind
 		ifste.thenste=parseStatement(area)
 		#p "ifste then statement"
-		#p ifste.thenste
+		p ifste.thenste
+		p showNext.kind
 		if showNext.kind==:else
+			p "in if statement in line 579"
+			p showNext.kind
 			acceptIt
+			p showNext.kind
 			ifste.elseste=parseStatement(area)
 		end
 		return ifste
@@ -680,7 +686,7 @@ for < variable > ::= < initial_value > to [down to] < final_value > do <statemen
 	def parseFactor
 		say "parseFactor"
 		fact=Factor.new
-		p showNext.kind
+		#p showNext.kind
 		case showNext.kind
 		when :not then
 			acceptIt
