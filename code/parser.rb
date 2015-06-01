@@ -469,6 +469,8 @@ class Parser
 		agnste.var=parseVariable()
 		expect :assign
 		agnste.expn=parseExpression()
+		
+		#p agnste.expn.reop
 		return agnste
 	end
 

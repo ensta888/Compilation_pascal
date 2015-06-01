@@ -180,7 +180,10 @@ class Visitor
 		code =[]
 		code << visitVariable(assignste.var)
 		code << "="
-		code << visitExpression(assignste.expn)
+		expncode = visitExpression(assignste.expn)
+		code << expncode
+		#p assignste.expn
+		#p	expncode
 		g_code=code.flatten.join
 		return " "*@indent+g_code
   end
@@ -197,8 +200,12 @@ class Visitor
   
   def visitExpression(expn,args=nil)
 		code =[]
-		#p expn.reop
 		#p "in Expression"
+		#p expn
+		#p "--------------------"
+		#p expn.lsmpexp
+		#p expn.reop
+		#p expn.rsmpexp		
 		if expn.reop != nil
 			code1 = visitSimpleExpression(expn.lsmpexp)
 			code << code1
@@ -215,6 +222,7 @@ class Visitor
 		else
 			code << visitSimpleExpression(expn.lsmpexp)
 		end
+		#p code
 		g_code=code.flatten.join
 		return g_code
   end
@@ -232,18 +240,25 @@ class Visitor
 		if smexp.sign!=nil
 			code = smexp.sign
 		end
-		#p "In simple Expression"
+		p "In simple Expression"
 		#p smexp
+		#p smexp.termlist.size
+		#p smexp.termlist[0].factlist.first
+		#p smexp.addingoplist
+		#p smexp.termlist[1].factlist.first
 		if smexp.termlist != nil
 			code1 = visitTerm(smexp.termlist.first)
 			code << code1
+			#p smexp.termlist[0]
+			#p smexp.termlist[1]
 			if smexp.termlist.size > 1
-				for i in 1..(smexp.termlist.size-2)
+				for i in 1..(smexp.termlist.size-1)
 					code << smexp.addingoplist[i].value
 					code << visitTerm(smexp.termlist[i])
 				end
 			end
 		end
+		#p "simple expression code"		
 		#p code
 		return code
   end

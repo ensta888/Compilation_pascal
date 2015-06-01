@@ -1,13 +1,12 @@
 program Lesson1_Program3;
 var       
-    Num0 : Integer = 10;
-	  Num1,Num2, Sum : Integer;
+    Num0 : string = 'abc';
+	  Num1,Num2, Sum : string;
 
 begin 
- write(Num0);
- write(Num1); 
- write('Input number 2:');
+ write(Num0); 
+ write('Input string 2:');
  read(Num2);
- Sum := Num1 + Num2; 
+ Sum := Num0 + Num2; 
  write(Sum);
 end.
