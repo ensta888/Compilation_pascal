@@ -1,6 +1,6 @@
 program exProcedure;
 var
-   a, b, c,  min: integer;
+   a, b, c,  minnum: integer;
 procedure findMin(var x, y, z: integer; var m: integer); 
 
 begin
@@ -10,10 +10,10 @@ begin
       m:= y;
    if z < m then
       m:= z;
+		write(m);
 end; 
 begin
    write(' Enter three numbers: ');
    read( a, b, c);
-   findMin(a, b, c, min); 
-   write(' Minimum: ', min);
+   findMin(a, b, c, minnum); 
 end.

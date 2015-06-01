@@ -178,7 +178,8 @@ class Visitor
 		code << visitVariable(assignste.var)
 		code << "="
 		code << visitExpression(assignste.expn)
-		return code
+		g_code=code.flatten.join
+		return g_code
   end
   
   def visitVariable(var,args=nil)
@@ -208,9 +209,18 @@ class Visitor
 		else
 			code << visitSimpleExpression(expn.lsmpexp)
 		end
-		return code
+		g_code=code.flatten.join
+		return g_code
   end
   
+=begin
+	def changeListToString(list)
+		list.each do |element|
+			if element isList		
+		end
+	end
+=end
+
   def visitSimpleExpression(smexp)
 		code = []
 		if smexp.sign!=nil
@@ -257,7 +267,7 @@ class Visitor
 		elsif fact.intconst != nil
 			code = fact.intconst.value
 		elsif fact.stringconst != nil
-			code = fact.stringconst
+			code = fact.stringconst.value
 		elsif fact.expn != nil
 			code = visitExpression(fact.expn)
 		elsif fact.notfact != nil
@@ -289,6 +299,7 @@ class Visitor
   		code << expn
   		puts expn
   		code << ")"
+			code << "document.write(\"<br>\")"
   	end
   	return code
   end
