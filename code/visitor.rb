@@ -3,7 +3,7 @@ require_relative 'ast'
 class Visitor
 
   def initialize
-    @indent=0
+    @indent=2
     @prg=[]
   end
   
@@ -83,7 +83,8 @@ class Visitor
 
   def visitBlockBegin(blk,args=nil)
 		code =[]
-		code << "{"
+		code <<  " "*@indent+"{"
+		indent
 		if blk.varDeclp !=nil
 			code << visitVariableDeclarationPart(blk.varDeclp)
 		end
@@ -98,7 +99,8 @@ class Visitor
   
   def visitBlockEnd(blk,args=nil)
 		code =[]
-		code << "}"
+		desindent
+		code << " "*@indent+"}"
 		return code
   end
 #---------------------------------------------------------------------  
@@ -147,7 +149,7 @@ class Visitor
 #----------------procedure statement---------------------------------
   def visitProcedureStatement(pcd,args=nil)
 		code =[]
-		code1 = pcd.ident.value+"("
+		code1 = " "*@indent+pcd.ident.value+"("
 		code << code1
 		if pcd.pars != nil
 			pcd.pars.each do |par|
@@ -180,7 +182,7 @@ class Visitor
 		code << "="
 		code << visitExpression(assignste.expn)
 		g_code=code.flatten.join
-		return g_code
+		return " "*@indent+g_code
   end
   
   def visitVariable(var,args=nil)
@@ -290,8 +292,9 @@ class Visitor
   		string=IO.read "html_erb/readStatement.html.erb"
 			engine = ERB.new(string)
 			code2 = engine.result(binding)
-			code << code1+code2
+			code << " "*@indent+code1+code2
   	end
+		#code=code.flatten.join
   	return code
   end
 #---------------------writeStatement--------------------------------
@@ -299,13 +302,13 @@ class Visitor
  		code =[]
 		onecode=[]
   	writeste.outputlist.each do |output|
-  		onecode << "document.write( "
+  		onecode << " "*@indent+"document.write( "
   		expn=visitExpression(output.expn)	
   		onecode << expn
   		#puts expn
   		onecode << " )"
 			code << onecode.flatten.join
-			code << "document.write(\"<br>\")"
+			code << " "*@indent+"document.write(\"<br>\")"
   	end
 
   	return code
@@ -331,26 +334,27 @@ class Visitor
   def visitIfStatement(ste,args=nil)
 		code =[]
 		expcode=[]
-		expcode << "if ( "
+		expcode << " "*@indent+"if ( "
 		expcode << visitExpression(ste.cond)
 		#p ste.cond.lsmpexp
 		#p expcode
 		expcode << ")"
 		expcode=expcode.flatten.join
 		code << expcode
+		indent
 		code << visitStatement(ste.thenste)
 		if ste.elseste != nil
-			code << "else "
+			code << " "*(@indent-2)+"else "
 			code << visitStatement(ste.elseste)
 		end
-		
+		desindent
 		return code
   end
   
 #-----------------:cond, :ste----while statement--------
   def visitWhileStatement(ste,args=nil)
 		code =[]
-		code << "while ( "
+		code << " "*@indent+"while ( "
 		code << visitExpression(ste.cond)
 		code << ")"
 		code << visitStatement(ste.thenste)
