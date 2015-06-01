@@ -134,14 +134,11 @@ class Visitor
 		code =[]
 		if ste.assignste !=nil
 			code << visitAssignmentStatement(ste.assignste)
-		end
-		if ste.procedste !=nil
+		elsif ste.procedste !=nil
 			code << visitProcedureStatement(ste.procedste)
-		end
-		if ste.readste !=nil
+		elsif ste.readste !=nil
 			code << visitReadStatement(ste.readste)
-		end
-		if ste.writeste !=nil
+		elsif ste.writeste !=nil
 			code << visitWriteStatement(ste.writeste)
 		end
 		return code
@@ -163,7 +160,7 @@ class Visitor
 			end
 		end
 		code << ")"
-		p code
+		#p code
 		return code
   end
   
@@ -299,18 +296,15 @@ class Visitor
 #----------------:cmpste, :ifste,:whileste, :forste StructuredStatement---------------
   
   def visitStructuredStatement(ste,args=nil)
-		code =[]
+		code =""
 		if ste.cmpste !=nil
-			code << visitCompoundStatement(ste.cmpste)
-		end
-		if ste.ifste !=nil
-			code << visitIfStatement(ste.ifste)
-		end
-		if ste.whileste !=nil
-			code << visitWhileStatement(ste.whileste)
-		end
-		if ste.forste !=nil
-			code << visitForStatement(ste.forste)
+			code = visitCompoundStatement(ste.cmpste)
+		elsif ste.ifste !=nil
+			code = visitIfStatement(ste.ifste)
+		elsif ste.whileste !=nil
+			code = visitWhileStatement(ste.whileste)
+		elsif ste.forste !=nil
+			code = visitForStatement(ste.forste)
 		end
 		return code
   end
