@@ -240,7 +240,7 @@ class Visitor
 		if smexp.sign!=nil
 			code = smexp.sign
 		end
-		p "In simple Expression"
+		#p "In simple Expression"
 		#p smexp
 		#p smexp.termlist.size
 		#p smexp.termlist[0].factlist.first

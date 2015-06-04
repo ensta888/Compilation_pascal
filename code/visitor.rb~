@@ -253,7 +253,7 @@ class Visitor
 			#p smexp.termlist[1]
 			if smexp.termlist.size > 1
 				for i in 1..(smexp.termlist.size-1)
-					code << smexp.addingoplist[i].value
+					code << smexp.addingoplist[i-1].value
 					code << visitTerm(smexp.termlist[i])
 				end
 			end
